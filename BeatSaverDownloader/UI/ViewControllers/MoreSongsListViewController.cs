@@ -324,8 +324,8 @@ namespace BeatSaverDownloader.UI.ViewControllers
                     sortListTableData.data.Add(new SortFilterCellInfo(new SortFilter(Filters.FilterMode.BeatSaver, Filters.BeatSaverFilterOptions.Hot), "Hot", "BeatSaver", Sprites.BeatSaverIcon));
                     sortListTableData.data.Add(new SortFilterCellInfo(new SortFilter(Filters.FilterMode.BeatSaver, Filters.BeatSaverFilterOptions.Latest), "Latest", "BeatSaver", Sprites.BeatSaverIcon));
                     sortListTableData.data.Add(new SortFilterCellInfo(new SortFilter(Filters.FilterMode.BeatSaver, Filters.BeatSaverFilterOptions.Rating), "Rating", "BeatSaver", Sprites.BeatSaverIcon));
-
-                    sortListTableData.data.Add(new SortFilterCellInfo(new SortFilter(Filters.FilterMode.BeatSaver, Filters.BeatSaverFilterOptions.Downloads), "Downloads", "BeatSaver", Sprites.BeatSaverIcon));
+              // Sort By Downloads will return in BeatSaver: Infinity War
+              //      sortListTableData.data.Add(new SortFilterCellInfo(new SortFilter(Filters.FilterMode.BeatSaver, Filters.BeatSaverFilterOptions.Downloads), "Downloads", "BeatSaver", Sprites.BeatSaverIcon));
               //      sortListTableData.data.Add(new SortFilterCellInfo(new SortFilter(Filters.FilterMode.BeatSaver, Filters.BeatSaverFilterOptions.Plays), "Plays", "BeatSaver", Sprites.BeatSaverIcon));
                     break;
                 case Filters.FilterMode.ScoreSaber:
@@ -468,6 +468,8 @@ namespace BeatSaverDownloader.UI.ViewControllers
             List<BeatSaverSharp.Models.Beatmap> newMaps = new List<BeatSaverSharp.Models.Beatmap>();
             for (uint i = 0; i < count; ++i)
             {
+                try
+                {
                 _fetchingDetails = $"({i + 1}/{count})";
                 var options = new SearchTextFilterOption { };
                 if (AllowAIGeneratedMaps) options.IncludeAutomappers = true;
@@ -489,7 +491,7 @@ namespace BeatSaverDownloader.UI.ViewControllers
                     case Filters.BeatSaverFilterOptions.Uploader:
                         options.SortOrder = SortingOptions.Latest;
                         break;
-                    // downloads should probably be removed...
+                    // kept for compatibility
                     case Filters.BeatSaverFilterOptions.Downloads:
                         options.SortOrder = SortingOptions.Relevance;
                         break;
@@ -513,6 +515,12 @@ namespace BeatSaverDownloader.UI.ViewControllers
                 if (page.Beatmaps != null)
                     newMaps.AddRange(page.Beatmaps);
                 if (_endOfResults) break;
+
+                }
+                catch(Exception e)
+                {
+                    // pages didn't load properly
+                }
             }
             newMaps.ForEach(x => _songs.Add(new StrongBox<BeatSaverSharp.Models.Beatmap>(x)));
             foreach (var song in newMaps)

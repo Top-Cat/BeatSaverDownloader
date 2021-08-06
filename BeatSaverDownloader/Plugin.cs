@@ -39,15 +39,8 @@ namespace BeatSaverDownloader
             string platform = hasSteamDll ? "steam" : "oculus";
             string gameVersionFull = $"{IPA.Utilities.UnityGame.GameVersion.ToString()}-{platform}";
 
-            var httpAgent = new BeatSaverSharp.HttpAgent("BeatSaber", gameVersionFull);
-            var agentList = new List<BeatSaverSharp.HttpAgent> { httpAgent };
-            var httpOptions = new BeatSaverSharp.HttpOptions(
-            "BeatSaverDownloader",
-            Assembly.GetExecutingAssembly().GetName().Version,
-            agents: agentList
-        );
-
-            BeatSaver = new BeatSaverSharp.BeatSaver(httpOptions);
+            // fix version later
+            BeatSaver = new BeatSaverSharp.BeatSaver(new BeatSaverSharp.BeatSaverOptions("BeatSaber", new Version(1, 0, 0)));
 
             instance = this;
             PluginConfig.LoadConfig();

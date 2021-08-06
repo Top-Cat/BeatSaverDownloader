@@ -87,7 +87,7 @@ namespace BeatSaverDownloader.UI
                     break;
             }
         }
-        internal void HandleDidSelectSong(StrongBox<BeatSaverSharp.Beatmap> song, Sprite cover = null)
+        internal void HandleDidSelectSong(StrongBox<BeatSaverSharp.Models.Beatmap> song, Sprite cover = null)
         {
             _songDetailView.ClearData();
             _songDescriptionView.ClearData();
@@ -110,7 +110,7 @@ namespace BeatSaverDownloader.UI
 
         }
 
-        internal void HandleDidPressDownload(BeatSaverSharp.Beatmap song, Sprite cover)
+        internal void HandleDidPressDownload(BeatSaverSharp.Models.Beatmap song, Sprite cover)
         {
             Plugin.log.Info("Download pressed for song: " + song.Metadata.SongName);
             //    Misc.SongDownloader.Instance.DownloadSong(song);
@@ -139,9 +139,9 @@ namespace BeatSaverDownloader.UI
                 _moreSongsNavigationcontroller.PushViewController(_moreSongsView, null, true);
             }
         }
-        internal void HandleDidPressUploader(BeatSaverSharp.User uploader)
+        internal void HandleDidPressUploader(BeatSaverSharp.Models.User uploader)
         {
-            Plugin.log.Info("Uploader pressed for user: " + uploader.Username);
+            Plugin.log.Info("Uploader pressed for user: " + uploader.Name);
             _moreSongsView.SortByUser(uploader);
         }
         internal void HandleFilterDidChange()

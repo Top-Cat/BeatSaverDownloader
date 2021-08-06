@@ -11,7 +11,7 @@ namespace BeatSaverDownloader.Misc
 {
     public class SongDownloader : MonoBehaviour
     {
-        public event Action<BeatSaverSharp.Beatmap> songDownloaded;
+        public event Action<BeatSaverSharp.Models.Beatmap> songDownloaded;
 
         private static SongDownloader _instance = null;
 
@@ -52,7 +52,7 @@ namespace BeatSaverDownloader.Misc
             _alreadyDownloadedSongs = new HashSet<string>(levels.Values.Select(x => SongCore.Collections.hashForLevelID(x.levelID)));
         }
 
-        public async Task DownloadSong(BeatSaverSharp.Beatmap song, System.Threading.CancellationToken token, IProgress<double> progress = null, bool direct = false)
+        public async Task DownloadSong(BeatSaverSharp.Models.Beatmap song, System.Threading.CancellationToken token, IProgress<double> progress = null, bool direct = false)
         {
             try
             {
@@ -61,8 +61,7 @@ namespace BeatSaverDownloader.Misc
                 {
                     Directory.CreateDirectory(customSongsPath);
                 }
-                var options = new BeatSaverSharp.StandardRequestOptions { Token = token, Progress = progress };
-                var zip = await song.ZipBytes(direct, options).ConfigureAwait(false);
+                var zip = await song.LatestVersion.DownloadZIP(token, progress);
                 Plugin.log.Info("Downloaded zip!");
                 await ExtractZipAsync(song, zip, customSongsPath).ConfigureAwait(false);
                 songDownloaded?.Invoke(song);
@@ -74,12 +73,12 @@ namespace BeatSaverDownloader.Misc
                     Plugin.log.Warn("Song Download Aborted.");
                 else
                     Plugin.log.Critical("Failed to download Song!");
-                if (_alreadyDownloadedSongs.Contains(song.Hash.ToUpper()))
-                    _alreadyDownloadedSongs.Remove(song.Hash.ToUpper());
+                if (_alreadyDownloadedSongs.Contains(song.LatestVersion.Hash.ToUpper()))
+                    _alreadyDownloadedSongs.Remove(song.LatestVersion.Hash.ToUpper());
             }
         }
 
-        private async Task ExtractZipAsync(BeatSaverSharp.Beatmap songInfo, byte[] zip, string customSongsPath, bool overwrite = false)
+        private async Task ExtractZipAsync(BeatSaverSharp.Models.Beatmap songInfo, byte[] zip, string customSongsPath, bool overwrite = false)
         {
             Stream zipStream = new MemoryStream(zip);
             try
@@ -87,7 +86,7 @@ namespace BeatSaverDownloader.Misc
                 Plugin.log.Info("Extracting...");
                 _extractingZip = true;
                 ZipArchive archive = new ZipArchive(zipStream, ZipArchiveMode.Read);
-                string basePath = songInfo.Key + " (" + songInfo.Metadata.SongName + " - " + songInfo.Metadata.LevelAuthorName + ")";
+                string basePath = songInfo.ID + " (" + songInfo.Metadata.SongName + " - " + songInfo.Metadata.LevelAuthorName + ")";
                 basePath = string.Join("", basePath.Split((Path.GetInvalidFileNameChars().Concat(Path.GetInvalidPathChars()).ToArray())));
                 string path = customSongsPath + "/" + basePath;
                 if (!overwrite && Directory.Exists(path))

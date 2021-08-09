@@ -22,7 +22,7 @@
 
     </horizontal>
     <modal id="loadingModal" show-event="open-loadingModal" hide-event="close-loadingModal,closeAllModals" move-to-center="true" size-delta-y="35" size-delta-x="48">
-      <button id="abortButton" on-click="abortClicked" text="Abort" ignore-layout="true" anchor-min-x="0.5" anchor-max-x="0.5" anchor-pos-y="5" pref-height="8" pad="0" ></button>
+      <button id="abortButton" on-click="abortClicked" text="Abort" ignore-layout="true" anchor-min-x="0.5" anchor-max-x="0.5" anchor-pos-y="-30" anchor-pos-x="0" pref-height="8" pref-width="35" pad="0" ></button>
     </modal>
     <page-button event-click="list#PageUp" on-click="pageUpPressed" direction="Up"></page-button>
     <list id="list" expand-cell="true" select-cell="listSelect">

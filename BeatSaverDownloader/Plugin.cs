@@ -34,13 +34,8 @@ namespace BeatSaverDownloader
         [OnStart]
         public void OnApplicationStart()
         {
-            string steamDllPath = Path.Combine(IPA.Utilities.UnityGame.InstallPath, "Beat Saber_Data", "Plugins", "steam_api64.dll");
-            bool hasSteamDll = File.Exists(steamDllPath);
-            string platform = hasSteamDll ? "steam" : "oculus";
-            string gameVersionFull = $"{IPA.Utilities.UnityGame.GameVersion.ToString()}-{platform}";
-
-            // fix version later
-            BeatSaver = new BeatSaverSharp.BeatSaver(new BeatSaverSharp.BeatSaverOptions("BeatSaber", new Version(1, 0, 0)));
+            var version = GetType().Assembly.GetName().Version;
+            BeatSaver = new BeatSaverSharp.BeatSaver(new BeatSaverSharp.BeatSaverOptions("BeatSaverDownloader", new Version(version.Major, version.Minor, version.Build)));
 
             instance = this;
             PluginConfig.LoadConfig();

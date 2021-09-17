@@ -28,12 +28,12 @@ namespace BeatSaverDownloader.UI.ViewControllers
         private BeatSaverSharp.Models.BeatmapDifficulty.BeatmapCharacteristic _selectedCharacteristic;
         private BeatSaverSharp.Models.BeatmapDifficulty[] _currentDifficulties;
 
-        private CurvedTextMeshPro _songNameText;
+        private TextMeshProUGUI _songNameText;
         private ImageView _coverImage;
 
         private TextMeshProUGUI _timeText;
         private TextMeshProUGUI _bpmText;
-        private CurvedTextMeshPro _songSubText;
+        private TextMeshProUGUI _songSubText;
         private CurvedTextMeshPro _npsText;
         private CurvedTextMeshPro _notesText;
         private CurvedTextMeshPro _obstaclesText;
@@ -183,7 +183,7 @@ namespace BeatSaverDownloader.UI.ViewControllers
 
         internal void SetupDetailView()
         {
-            _levelDetails = GameObject.Instantiate(PluginUI._levelDetailClone, gameObject.transform);
+            _levelDetails = Instantiate(PluginUI._levelDetailClone, gameObject.transform);
             _levelDetails.gameObject.SetActive(false);
 
             _characteristicSegmentedControllerClone = _levelDetails.GetComponentInChildren<BeatmapCharacteristicSegmentedControlController>();
@@ -194,12 +194,15 @@ namespace BeatSaverDownloader.UI.ViewControllers
             _diffSegmentedControl = CreateTextSegmentedControl(_difficultiesSegmentedControllerClone.transform as RectTransform, new Vector2(0, 0), new Vector2(0, 0),
                 delegate (int value) { SelectedDifficulty(_currentDifficulties[value]); }, 3.5f, 1);
 
-            _songNameText = _levelDetails.GetComponentsInChildren<CurvedTextMeshPro>().First(x => x.gameObject.name == "SongNameText");
-            _songSubText = _levelDetails.GetComponentsInChildren<CurvedTextMeshPro>().First(x => x.gameObject.name == "AuthorNameText");
+            var levelBar = _levelDetails.GetComponentInChildren<LevelBar>();
+            levelBar.GetPrivateField<GameObject>("_singleLineSongInfoContainer").SetActive(true);
+            levelBar.GetPrivateField<GameObject>("_multiLineSongInfoContainer").SetActive(false);
+            _songNameText = levelBar.GetPrivateField<TextMeshProUGUI>("_songNameText");
+            _songSubText = levelBar.GetPrivateField<TextMeshProUGUI>("_authorNameText");
+            _coverImage = levelBar.GetPrivateField<ImageView>("_songArtworkImageView");
+
             _songSubText.overflowMode = TextOverflowModes.Overflow;
             _songSubText.enableWordWrapping = false;
-
-            _coverImage = _levelDetails.transform.Find("LevelBarBig").Find("SongArtwork").GetComponent<ImageView>();
 
             //   _timeText = _levelDetails.GetComponentsInChildren<TextMeshProUGUI>().First(x => x.gameObject.transform.parent.name == "Time");
             //   _bpmText = _levelDetails.GetComponentsInChildren<TextMeshProUGUI>().First(x => x.gameObject.transform.parent.name == "BPM");

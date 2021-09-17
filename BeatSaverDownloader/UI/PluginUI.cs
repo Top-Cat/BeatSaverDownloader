@@ -20,7 +20,7 @@ namespace BeatSaverDownloader.UI
 
         internal static void SetupLevelDetailClone()
         {
-            _levelDetailClone = GameObject.Instantiate(Resources.FindObjectsOfTypeAll<StandardLevelDetailView>().First(x => x.gameObject.name == "LevelDetail").gameObject);
+            _levelDetailClone = Instantiate(Resources.FindObjectsOfTypeAll<StandardLevelDetailView>().First(x => x.gameObject.name == "LevelDetail").gameObject);
             _levelDetailClone.gameObject.SetActive(false);
             Destroy(_levelDetailClone.GetComponent<StandardLevelDetailView>());
             var bsmlObjects = _levelDetailClone.GetComponentsInChildren<RectTransform>().Where(x => x.gameObject.name.StartsWith("BSML"));
@@ -48,8 +48,8 @@ namespace BeatSaverDownloader.UI
         {
             if (_moreSongsFlowCooridinator == null)
                 _moreSongsFlowCooridinator = BeatSaberUI.CreateFlowCoordinator<MoreSongsFlowCoordinator>();
-            _moreSongsFlowCooridinator.SetParentFlowCoordinator(BeatSaberMarkupLanguage.BeatSaberUI.MainFlowCoordinator);
-            BeatSaberMarkupLanguage.BeatSaberUI.MainFlowCoordinator.PresentFlowCoordinator(_moreSongsFlowCooridinator, null, ViewController.AnimationDirection.Horizontal, true); // ("PresentFlowCoordinator", _moreSongsFlowCooridinator, null, false, false);
+            _moreSongsFlowCooridinator.SetParentFlowCoordinator(BeatSaberUI.MainFlowCoordinator);
+            BeatSaberUI.MainFlowCoordinator.PresentFlowCoordinator(_moreSongsFlowCooridinator, null, ViewController.AnimationDirection.Horizontal, true); // ("PresentFlowCoordinator", _moreSongsFlowCooridinator, null, false, false);
         }
     }
 }

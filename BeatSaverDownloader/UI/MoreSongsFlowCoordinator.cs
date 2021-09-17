@@ -73,17 +73,17 @@ namespace BeatSaverDownloader.UI
 
         internal void UpdateTitle()
         {
-            string title = $"{_moreSongsView._currentFilter}";
+            string localTitle = $"{_moreSongsView._currentFilter}";
             switch (_moreSongsView._currentFilter)
             {
-                case Misc.Filters.FilterMode.BeatSaver:
-                    SetTitle(title + $" - {_moreSongsView._currentBeatSaverFilter.Name()}");
+                case Filters.FilterMode.BeatSaver:
+                    SetTitle(localTitle + $" - {_moreSongsView._currentBeatSaverFilter.Name()}");
                     break;
-                case Misc.Filters.FilterMode.ScoreSaber:
-                    SetTitle(title + $" - {_moreSongsView._currentScoreSaberFilter.Name()}");
+                case Filters.FilterMode.ScoreSaber:
+                    SetTitle(localTitle + $" - {_moreSongsView._currentScoreSaberFilter.Name()}");
                     break;
-                case Misc.Filters.FilterMode.BeastSaber:
-                    SetTitle(title + $" - {_moreSongsView._currentBeastSaberFilter.Name()}");
+                case Filters.FilterMode.BeastSaber:
+                    SetTitle(localTitle + $" - {_moreSongsView._currentBeastSaberFilter.Name()}");
                     break;
             }
         }

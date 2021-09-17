@@ -1,11 +1,8 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
-using BeatSaberMarkupLanguage.Notify;
 using BeatSaverDownloader.Misc;
 using System;
 using System.Threading;
-using System.Threading.Tasks;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using TMPro;

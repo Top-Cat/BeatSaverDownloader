@@ -1,28 +1,25 @@
 ﻿using BeatSaverDownloader.Misc;
 using BeatSaverDownloader.UI;
-using BS_Utils.Gameplay;
 using IPA;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
 using UnityEngine.SceneManagement;
-using System.Collections;
-using System.Threading;
 using System.Collections.Concurrent;
-using System.Net.Http;
+
 namespace BeatSaverDownloader
 {
     public enum SongQueueState { Queued, Downloading, Downloaded, Error };
+
     [Plugin(RuntimeOptions.SingleStartInit)]
     public class Plugin
     {
-        public static Plugin instance;
+        private IPA.Loader.PluginMetadata _metadata;
         public static IPA.Logging.Logger log;
         public static BeatSaverSharp.BeatSaver BeatSaver;
+
         [Init]
         public void Init(object nullObject, IPA.Logging.Logger logger, IPA.Loader.PluginMetadata metadata)
         {
+            _metadata = metadata;
             log = logger;
             BeastSaber.BeastSaberApiHelper.InitializeBeastSaberHttpClient(metadata);
         }
@@ -31,13 +28,17 @@ namespace BeatSaverDownloader
         {
             PluginConfig.SaveConfig();
         }
+
         [OnStart]
         public void OnApplicationStart()
         {
-            var version = GetType().Assembly.GetName().Version;
-            BeatSaver = new BeatSaverSharp.BeatSaver(new BeatSaverSharp.BeatSaverOptions("BeatSaverDownloader", new Version(version.Major, version.Minor, version.Build)));
+            BeatSaver = new BeatSaverSharp.BeatSaver(
+                new BeatSaverSharp.BeatSaverOptions(
+                    "BeatSaverDownloader",
+                    new Version((int) _metadata.HVersion.Major, (int) _metadata.HVersion.Minor, (int) _metadata.HVersion.Patch)
+                )
+            );
 
-            instance = this;
             PluginConfig.LoadConfig();
             Sprites.ConvertToSprites();
 
@@ -58,7 +59,7 @@ namespace BeatSaverDownloader
             }
             catch (Exception e)
             {
-                Plugin.log.Critical("Exception on fresh menu scene change: " + e);
+                log.Critical("Exception on fresh menu scene change: " + e);
             }
         }
 

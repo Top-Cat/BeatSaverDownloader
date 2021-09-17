@@ -1,5 +1,4 @@
 ﻿using BeatSaberMarkupLanguage.Attributes;
-using BeatSaberMarkupLanguage.Settings;
 
 namespace BeatSaverDownloader.UI
 {

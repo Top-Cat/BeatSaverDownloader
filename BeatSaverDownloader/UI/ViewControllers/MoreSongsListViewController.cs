@@ -5,20 +5,16 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using System.Collections;
-using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Linq;
 using UnityEngine;
 using BeatSaverDownloader.Misc;
 using TMPro;
-using System.Drawing;
 using Color = UnityEngine.Color;
 using BeatSaverSharp;
 using UnityEngine.UI;
-using BeatSaberMarkupLanguage.Tags;
-using System.IO;
-using IPA.Utilities.Async;
+using BS_Utils.Utilities;
+
 namespace BeatSaverDownloader.UI.ViewControllers
 {
 
@@ -50,9 +46,9 @@ namespace BeatSaverDownloader.UI.ViewControllers
         [UIComponent("sortModal")]
         public ModalView sortModal;
         [UIComponent("sortButton")]
-        private UnityEngine.UI.Button _sortButton;
+        private Button _sortButton;
         [UIComponent("searchButton")]
-        private UnityEngine.UI.Button _searchButton;
+        private Button _searchButton;
         [UIComponent("searchKeyboard")]
         private ModalKeyboard _searchKeyboard;
 
@@ -217,7 +213,7 @@ namespace BeatSaverDownloader.UI.ViewControllers
 
         }
         [UIComponent("songsPageDown")]
-        private UnityEngine.UI.Button _songsDownButton;
+        private Button _songsDownButton;
         [UIAction("pageDownPressed")]
         internal async void PageDownPressed()
         {
@@ -517,7 +513,7 @@ namespace BeatSaverDownloader.UI.ViewControllers
                 if (_endOfResults) break;
 
                 }
-                catch(Exception e)
+                catch (Exception)
                 {
                     // pages didn't load properly
                 }
@@ -664,8 +660,8 @@ namespace BeatSaverDownloader.UI.ViewControllers
 
     public class ScoreSaberCustomSongCellInfo : CustomListTableData.CustomCellInfo
     {
-        private new ScoreSaberSharp.Song _song;
-        Action<CustomListTableData.CustomCellInfo> _callback;
+        private readonly ScoreSaberSharp.Song _song;
+        private readonly Action<CustomListTableData.CustomCellInfo> _callback;
         public ScoreSaberCustomSongCellInfo(ScoreSaberSharp.Song song, Action<CustomListTableData.CustomCellInfo> callback, string text, string subtext = null) : base(text, subtext, null)
         {
             _song = song;

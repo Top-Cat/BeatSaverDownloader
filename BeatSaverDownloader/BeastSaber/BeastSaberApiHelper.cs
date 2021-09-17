@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
-using Newtonsoft.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Net.Http;
@@ -16,7 +13,7 @@ namespace BeatSaverDownloader.BeastSaber
         internal static void InitializeBeastSaberHttpClient(IPA.Loader.PluginMetadata metadata)
         {
             BeastSaberRequestClient = new HttpClient() { BaseAddress = new Uri("https://bsaber.com/wp-json/bsaber-api/") };
-            BeastSaberRequestClient.DefaultRequestHeaders.Add("User-Agent", $"BeatSaverDownloader/{metadata.Version}");
+            BeastSaberRequestClient.DefaultRequestHeaders.Add("User-Agent", $"BeatSaverDownloader/{metadata.HVersion}");
         }
 
         public static async Task<BeastSaberApiResult> GetPage(Misc.Filters.BeastSaberFilterOptions filter, uint page, uint itemsPerPage, CancellationToken cancellationToken)

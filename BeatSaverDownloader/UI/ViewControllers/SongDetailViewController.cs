@@ -243,8 +243,8 @@ namespace BeatSaverDownloader.UI.ViewControllers
         {
             //       _timeText.text = $"{Math.Floor((double)difficulty.Length / 60):N0}:{Math.Floor((double)difficulty.Length % 60):00}";
             //       _bpmText.text = _currentSong.Metadata.BPM.ToString();
-            _songSubText.text = $"{_currentSong.Metadata.BPM.ToString()} BPM   " + $"{Math.Floor((double)difficulty.Length / 60):N0}:{Math.Floor((double)difficulty.Length % 60):00}";
-            _npsText.text = ((float)difficulty.Notes / (float)difficulty.Length).ToString("F2");
+            _songSubText.text = $"{_currentSong.Metadata.BPM.ToString()} BPM   " + $"{Math.Floor((double)_currentSong.Metadata.Duration / 60):N0}:{Math.Floor((double)_currentSong.Metadata.Duration % 60):00}";
+            _npsText.text = difficulty.NPS.ToString("F2");
             _notesText.text = difficulty.Notes.ToString();
             _obstaclesText.text = difficulty.Obstacles.ToString();
             _bombsText.text = difficulty.Bombs.ToString();

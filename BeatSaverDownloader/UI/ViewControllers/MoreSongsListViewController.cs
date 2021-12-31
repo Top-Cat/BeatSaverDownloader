@@ -400,7 +400,7 @@ namespace BeatSaverDownloader.UI.ViewControllers
             var maps = await Plugin.BeatSaver.BeatmapByHash(newMaps.Select(x => x.hash).ToArray());
             foreach (var song in newMaps)
             {
-                if (!maps.TryGetValue(song.hash, out BeatSaverSharp.Models.Beatmap fromBeastSaber)) continue;
+                if (!maps.TryGetValue(song.hash.ToUpperInvariant(), out BeatSaverSharp.Models.Beatmap fromBeastSaber)) continue;
 
                 _songs.Add(new StrongBox<BeatSaverSharp.Models.Beatmap>(fromBeastSaber));
                 if (SongDownloader.Instance.IsSongDownloaded(song.hash))
@@ -449,10 +449,10 @@ namespace BeatSaverDownloader.UI.ViewControllers
                     newMaps.AddRange(page.songs);
                 if (_endOfResults) break;
             }
-            var maps = await Plugin.BeatSaver.BeatmapByHash(newMaps.Select(x => x.id.ToLowerInvariant()).ToArray());
+            var maps = await Plugin.BeatSaver.BeatmapByHash(newMaps.Select(x => x.id).ToArray());
             foreach (var song in newMaps)
             {
-                if (!maps.TryGetValue(song.id.ToLowerInvariant(), out BeatSaverSharp.Models.Beatmap fromScoreSaber)) continue;
+                if (!maps.TryGetValue(song.id.ToUpperInvariant(), out BeatSaverSharp.Models.Beatmap fromScoreSaber)) continue;
 
                 _songs.Add(new StrongBox<BeatSaverSharp.Models.Beatmap>(fromScoreSaber));
                 if (SongDownloader.Instance.IsSongDownloaded(song.id))

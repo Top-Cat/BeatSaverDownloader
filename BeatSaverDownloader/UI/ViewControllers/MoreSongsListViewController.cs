@@ -397,9 +397,11 @@ namespace BeatSaverDownloader.UI.ViewControllers
                     newMaps.AddRange(page.songs);
                 if (_endOfResults) break;
             }
+            var maps = await Plugin.BeatSaver.BeatmapByHash(newMaps.Select(x => x.hash).ToArray());
             foreach (var song in newMaps)
             {
-                BeatSaverSharp.Models.Beatmap fromBeastSaber = await ConstructBeatmapFromBeastSaber(song);
+                if (!maps.TryGetValue(song.hash, out BeatSaverSharp.Models.Beatmap fromBeastSaber)) continue;
+
                 _songs.Add(new StrongBox<BeatSaverSharp.Models.Beatmap>(fromBeastSaber));
                 if (SongDownloader.Instance.IsSongDownloaded(song.hash))
                     customListTableData.data.Add(new BeatSaverCustomSongCellInfo(fromBeastSaber, CellDidSetImage, $"<#7F7F7F>{song.title}", song.level_author_name));
@@ -447,9 +449,11 @@ namespace BeatSaverDownloader.UI.ViewControllers
                     newMaps.AddRange(page.songs);
                 if (_endOfResults) break;
             }
+            var maps = await Plugin.BeatSaver.BeatmapByHash(newMaps.Select(x => x.id.ToLowerInvariant()).ToArray());
             foreach (var song in newMaps)
             {
-                BeatSaverSharp.Models.Beatmap fromScoreSaber = await ConstructBeatmapFromScoreSaber(song);
+                if (!maps.TryGetValue(song.id.ToLowerInvariant(), out BeatSaverSharp.Models.Beatmap fromScoreSaber)) continue;
+
                 _songs.Add(new StrongBox<BeatSaverSharp.Models.Beatmap>(fromScoreSaber));
                 if (SongDownloader.Instance.IsSongDownloaded(song.id))
                     customListTableData.data.Add(new ScoreSaberCustomSongCellInfo(song, CellDidSetImage, $"<#7F7F7F>{song.name}", song.levelAuthorName));
@@ -466,52 +470,51 @@ namespace BeatSaverDownloader.UI.ViewControllers
             {
                 try
                 {
-                _fetchingDetails = $"({i + 1}/{count})";
-                var options = new SearchTextFilterOption { };
-                if (AllowAIGeneratedMaps) options.IncludeAutomappers = true;
+                    _fetchingDetails = $"({i + 1}/{count})";
+                    var options = new SearchTextFilterOption { };
+                    if (AllowAIGeneratedMaps) options.IncludeAutomappers = true;
 
-                switch (_currentBeatSaverFilter)
-                {
-                    case Filters.BeatSaverFilterOptions.Hot:
-                        options.SortOrder = SortingOptions.Relevance;
-                        break;
-                    case Filters.BeatSaverFilterOptions.Latest:
-                        options.SortOrder = SortingOptions.Latest;
-                        break;
-                    case Filters.BeatSaverFilterOptions.Rating:
-                        options.SortOrder = SortingOptions.Rating;
-                        break;
-                    //      case Filters.BeatSaverFilterOptions.Plays:
-                    //         page = await Plugin.BeatSaver.Plays(lastPage, cancellationTokenSource.Token, fetchProgress, automapperQuery);
-                    //         break;
-                    case Filters.BeatSaverFilterOptions.Uploader:
-                        options.SortOrder = SortingOptions.Latest;
-                        break;
-                    // kept for compatibility
-                    case Filters.BeatSaverFilterOptions.Downloads:
-                        options.SortOrder = SortingOptions.Relevance;
-                        break;
-                }
+                    switch (_currentBeatSaverFilter)
+                    {
+                        case Filters.BeatSaverFilterOptions.Hot:
+                            options.SortOrder = SortingOptions.Relevance;
+                            break;
+                        case Filters.BeatSaverFilterOptions.Latest:
+                            options.SortOrder = SortingOptions.Latest;
+                            break;
+                        case Filters.BeatSaverFilterOptions.Rating:
+                            options.SortOrder = SortingOptions.Rating;
+                            break;
+                        //      case Filters.BeatSaverFilterOptions.Plays:
+                        //         page = await Plugin.BeatSaver.Plays(lastPage, cancellationTokenSource.Token, fetchProgress, automapperQuery);
+                        //         break;
+                        case Filters.BeatSaverFilterOptions.Uploader:
+                            options.SortOrder = SortingOptions.Latest;
+                            break;
+                        // kept for compatibility
+                        case Filters.BeatSaverFilterOptions.Downloads:
+                            options.SortOrder = SortingOptions.Relevance;
+                            break;
+                    }
 
-                BeatSaverSharp.Models.Pages.Page page = null;
-                if(_currentBeatSaverFilter != Filters.BeatSaverFilterOptions.Uploader)
-                {
-                    page = await Plugin.BeatSaver.SearchBeatmaps(options, (int)lastPage, cancellationTokenSource.Token);
-                }
-                else
-                {
-                    page = await _currentUploader.Beatmaps((int)lastPage, cancellationTokenSource.Token);
-                }
+                    BeatSaverSharp.Models.Pages.Page page = null;
+                    if(_currentBeatSaverFilter != Filters.BeatSaverFilterOptions.Uploader)
+                    {
+                        page = await Plugin.BeatSaver.SearchBeatmaps(options, (int)lastPage, cancellationTokenSource.Token);
+                    }
+                    else
+                    {
+                        page = await _currentUploader.Beatmaps((int)lastPage, cancellationTokenSource.Token);
+                    }
 
-                lastPage++;
-                if (page.Empty)
-                {
-                    _endOfResults = true;
-                }
-                if (page.Beatmaps != null)
-                    newMaps.AddRange(page.Beatmaps);
-                if (_endOfResults) break;
-
+                    lastPage++;
+                    if (page.Empty)
+                    {
+                        _endOfResults = true;
+                    }
+                    if (page.Beatmaps != null)
+                        newMaps.AddRange(page.Beatmaps);
+                    if (_endOfResults) break;
                 }
                 catch (Exception)
                 {
@@ -581,18 +584,6 @@ namespace BeatSaverDownloader.UI.ViewControllers
             }
             _fetchingDetails = "";
 
-        }
-        public static async Task<BeatSaverSharp.Models.Beatmap> ConstructBeatmapFromBeastSaber(BeastSaber.BeastSaberSong song)
-        {
-            BeatSaverSharp.Models.Beatmap beatSaverSong = await Plugin.BeatSaver.Beatmap(song.song_key);
-
-            return beatSaverSong;
-        }
-        public static async Task<BeatSaverSharp.Models.Beatmap> ConstructBeatmapFromScoreSaber(ScoreSaberSharp.Song song)
-        {
-            BeatSaverSharp.Models.Beatmap beatSaverSong = await Plugin.BeatSaver.BeatmapByHash(song.id);
-
-            return beatSaverSong;
         }
         internal void CellDidSetImage(CustomListTableData.CustomCellInfo cell)
         {

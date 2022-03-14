@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Linq;
 using BS_Utils.Utilities;
+using IPA.Utilities;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -195,11 +196,11 @@ namespace BeatSaverDownloader.UI.ViewControllers
                 delegate (int value) { SelectedDifficulty(_currentDifficulties[value]); }, 3.5f, 1);
 
             var levelBar = _levelDetails.GetComponentInChildren<LevelBar>();
-            levelBar.GetPrivateField<GameObject>("_singleLineSongInfoContainer").SetActive(true);
-            levelBar.GetPrivateField<GameObject>("_multiLineSongInfoContainer").SetActive(false);
-            _songNameText = levelBar.GetPrivateField<TextMeshProUGUI>("_songNameText");
-            _songSubText = levelBar.GetPrivateField<TextMeshProUGUI>("_authorNameText");
-            _coverImage = levelBar.GetPrivateField<ImageView>("_songArtworkImageView");
+            levelBar.GetField<GameObject, LevelBar>("_singleLineSongInfoContainer").SetActive(true);
+            levelBar.GetField<GameObject, LevelBar>("_multiLineSongInfoContainer").SetActive(false);
+            _songNameText = levelBar.GetField<TextMeshProUGUI, LevelBar>("_songNameText");
+            _songSubText = levelBar.GetField<TextMeshProUGUI, LevelBar>("_authorNameText");
+            _coverImage = levelBar.GetField<ImageView, LevelBar>("_songArtworkImageView");
 
             _songSubText.overflowMode = TextOverflowModes.Overflow;
             _songSubText.enableWordWrapping = false;
@@ -362,12 +363,12 @@ namespace BeatSaverDownloader.UI.ViewControllers
 
             TextSegmentedControlCell[] _segments = Resources.FindObjectsOfTypeAll<TextSegmentedControlCell>();
 
-            segmentedControl.SetPrivateField("_singleCellPrefab", _segments.First(x => x.name == "SingleHorizontalTextSegmentedControlCell"));
-            segmentedControl.SetPrivateField("_firstCellPrefab", _segments.First(x => x.name == "LeftHorizontalTextSegmentedControlCell"));
-            segmentedControl.SetPrivateField("_middleCellPrefab", _segments.Last(x => x.name == "MiddleHorizontalTextSegmentedControlCell"));
-            segmentedControl.SetPrivateField("_lastCellPrefab", _segments.Last(x => x.name == "RightHorizontalTextSegmentedControlCell"));
+            segmentedControl.SetField("_singleCellPrefab", _segments.First(x => x.name == "SingleHorizontalTextSegmentedControlCell"));
+            segmentedControl.SetField("_firstCellPrefab", _segments.First(x => x.name == "LeftHorizontalTextSegmentedControlCell"));
+            segmentedControl.SetField("_middleCellPrefab", _segments.Last(x => x.name == "MiddleHorizontalTextSegmentedControlCell"));
+            segmentedControl.SetField("_lastCellPrefab", _segments.Last(x => x.name == "RightHorizontalTextSegmentedControlCell"));
 
-            segmentedControl.SetPrivateField("_container", Resources.FindObjectsOfTypeAll<TextSegmentedControl>().Select(x => x.GetPrivateField<object>("_container")).First(x => x != null));
+            segmentedControl.SetField("_container", Resources.FindObjectsOfTypeAll<TextSegmentedControl>().Select(x => x.GetField<object, TextSegmentedControl>("_container")).First(x => x != null));
 
             segmentedControl.transform.SetParent(parent, false);
             (segmentedControl.transform as RectTransform).anchorMax = new Vector2(0.5f, 0.5f);
@@ -375,8 +376,8 @@ namespace BeatSaverDownloader.UI.ViewControllers
             (segmentedControl.transform as RectTransform).anchoredPosition = anchoredPosition;
             (segmentedControl.transform as RectTransform).sizeDelta = sizeDelta;
 
-            segmentedControl.SetPrivateField("_fontSize", fontSize);
-            segmentedControl.SetPrivateField("_padding", padding);
+            segmentedControl.SetField("_fontSize", fontSize);
+            segmentedControl.SetField("_padding", padding);
             if (onValueChanged != null)
                 segmentedControl.didSelectCellEvent += (sender, index) => { onValueChanged(index); };
 
@@ -390,12 +391,12 @@ namespace BeatSaverDownloader.UI.ViewControllers
 
             IconSegmentedControlCell[] _segments = Resources.FindObjectsOfTypeAll<IconSegmentedControlCell>();
 
-            segmentedControl.SetPrivateField("_singleCellPrefab", _segments.First(x => x.name == "SingleHorizontalIconSegmentedControlCell"));
-            segmentedControl.SetPrivateField("_firstCellPrefab", _segments.First(x => x.name == "LeftHorizontalIconSegmentedControlCell"));
-            segmentedControl.SetPrivateField("_middleCellPrefab", _segments.First(x => x.name == "MiddleHorizontalIconSegmentedControlCell"));
-            segmentedControl.SetPrivateField("_lastCellPrefab", _segments.First(x => x.name == "RightHorizontalIconSegmentedControlCell"));
+            segmentedControl.SetField("_singleCellPrefab", _segments.First(x => x.name == "SingleHorizontalIconSegmentedControlCell"));
+            segmentedControl.SetField("_firstCellPrefab", _segments.First(x => x.name == "LeftHorizontalIconSegmentedControlCell"));
+            segmentedControl.SetField("_middleCellPrefab", _segments.First(x => x.name == "MiddleHorizontalIconSegmentedControlCell"));
+            segmentedControl.SetField("_lastCellPrefab", _segments.First(x => x.name == "RightHorizontalIconSegmentedControlCell"));
 
-            segmentedControl.SetPrivateField("_container", Resources.FindObjectsOfTypeAll<IconSegmentedControl>().Select(x => x.GetPrivateField<object>("_container")).First(x => x != null));
+            segmentedControl.SetField("_container", Resources.FindObjectsOfTypeAll<IconSegmentedControl>().Select(x => x.GetField<object, IconSegmentedControl>("_container")).First(x => x != null));
 
             segmentedControl.transform.SetParent(parent, false);
             (segmentedControl.transform as RectTransform).anchorMax = new Vector2(0.5f, 0.5f);

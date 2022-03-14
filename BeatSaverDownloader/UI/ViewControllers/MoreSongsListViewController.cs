@@ -14,6 +14,7 @@ using Color = UnityEngine.Color;
 using BeatSaverSharp;
 using UnityEngine.UI;
 using BS_Utils.Utilities;
+using IPA.Utilities;
 
 namespace BeatSaverDownloader.UI.ViewControllers
 {
@@ -590,7 +591,7 @@ namespace BeatSaverDownloader.UI.ViewControllers
             foreach (var visibleCell in customListTableData.tableView.visibleCells)
             {
                 LevelListTableCell levelCell = visibleCell as LevelListTableCell;
-                if (levelCell.GetField<TextMeshProUGUI>("_songNameText")?.text == cell.text)
+                if (levelCell.GetField<TextMeshProUGUI, LevelListTableCell>("_songNameText")?.text == cell.text)
                 {
                     customListTableData.tableView.RefreshCellsContent();
                     return;

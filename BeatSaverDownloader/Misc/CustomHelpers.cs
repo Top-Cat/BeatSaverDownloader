@@ -3,6 +3,7 @@ using SongCore.OverrideClasses;
 using System.Collections.Generic;
 using System.Linq;
 using BS_Utils.Utilities;
+using IPA.Utilities;
 using UnityEngine;
 
 namespace BeatSaverDownloader.Misc
@@ -11,7 +12,7 @@ namespace BeatSaverDownloader.Misc
     {
         public static void RefreshTable(this TableView tableView, bool callbackTable = true)
         {
-            HashSet<int> rows = new HashSet<int>(tableView.GetPrivateField<HashSet<int>>("_selectedCellIdxs"));
+            HashSet<int> rows = new HashSet<int>(tableView.GetField<HashSet<int>, TableView>("_selectedCellIdxs"));
 
             tableView.ReloadData();
             if (rows.Count > 0)

@@ -10,6 +10,7 @@ using IPA.Utilities;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Zenject;
 
 namespace BeatSaverDownloader.UI.ViewControllers
 {
@@ -368,7 +369,7 @@ namespace BeatSaverDownloader.UI.ViewControllers
             segmentedControl.SetField("_middleCellPrefab", _segments.Last(x => x.name == "MiddleHorizontalTextSegmentedControlCell"));
             segmentedControl.SetField("_lastCellPrefab", _segments.Last(x => x.name == "RightHorizontalTextSegmentedControlCell"));
 
-            segmentedControl.SetField("_container", Resources.FindObjectsOfTypeAll<TextSegmentedControl>().Select(x => x.GetField<object, TextSegmentedControl>("_container")).First(x => x != null));
+            segmentedControl.SetField("_container", Resources.FindObjectsOfTypeAll<TextSegmentedControl>().Select(x => x.GetField<DiContainer, TextSegmentedControl>("_container")).First(x => x != null));
 
             segmentedControl.transform.SetParent(parent, false);
             (segmentedControl.transform as RectTransform).anchorMax = new Vector2(0.5f, 0.5f);
@@ -396,7 +397,7 @@ namespace BeatSaverDownloader.UI.ViewControllers
             segmentedControl.SetField("_middleCellPrefab", _segments.First(x => x.name == "MiddleHorizontalIconSegmentedControlCell"));
             segmentedControl.SetField("_lastCellPrefab", _segments.First(x => x.name == "RightHorizontalIconSegmentedControlCell"));
 
-            segmentedControl.SetField("_container", Resources.FindObjectsOfTypeAll<IconSegmentedControl>().Select(x => x.GetField<object, IconSegmentedControl>("_container")).First(x => x != null));
+            segmentedControl.SetField("_container", Resources.FindObjectsOfTypeAll<IconSegmentedControl>().Select(x => x.GetField<DiContainer, IconSegmentedControl>("_container")).First(x => x != null));
 
             segmentedControl.transform.SetParent(parent, false);
             (segmentedControl.transform as RectTransform).anchorMax = new Vector2(0.5f, 0.5f);

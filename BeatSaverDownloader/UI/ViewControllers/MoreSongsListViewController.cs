@@ -5,6 +5,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.IO;
 using System.Runtime.CompilerServices;
 using System.Linq;
 using UnityEngine;
@@ -13,8 +14,8 @@ using TMPro;
 using Color = UnityEngine.Color;
 using BeatSaverSharp;
 using UnityEngine.UI;
-using BS_Utils.Utilities;
 using IPA.Utilities;
+using NLayer;
 
 namespace BeatSaverDownloader.UI.ViewControllers
 {
@@ -70,6 +71,7 @@ namespace BeatSaverDownloader.UI.ViewControllers
         internal Progress<Double> fetchProgress;
 
         public Action<StrongBox<BeatSaverSharp.Models.Beatmap>, Sprite> didSelectSong;
+        public Action<StrongBox<BeatSaverSharp.Models.Beatmap>, Sprite, Task<AudioClip>> didSelectSongNew;
         public Action filterDidChange;
         public Action multiSelectDidChange;
         public bool Working
@@ -122,7 +124,16 @@ namespace BeatSaverDownloader.UI.ViewControllers
             if (MultiSelectEnabled)
                 if (!_multiSelectSongs.Any(x => x.Item1.LatestVersion.Hash == _songs[row].Value.LatestVersion.Hash))
                     _multiSelectSongs.Add(new Tuple<BeatSaverSharp.Models.Beatmap, Sprite>(_songs[row].Value, customListTableData.data[row].icon));
+
             didSelectSong?.Invoke(_songs[row], customListTableData.data[row].icon);
+
+            Task<AudioClip> preview = null;
+            if (customListTableData.data[row] is BeatSaverCustomSongCellInfo bsCellInfo)
+            {
+                preview = bsCellInfo.LoadPreview();
+            }
+
+            didSelectSongNew?.Invoke(_songs[row], customListTableData.data[row].icon, preview);
         }
 
         internal void SortClosed()
@@ -635,6 +646,10 @@ namespace BeatSaverDownloader.UI.ViewControllers
     {
         protected BeatSaverSharp.Models.Beatmap _song;
         protected Action<CustomListTableData.CustomCellInfo> _callback;
+
+        static SemaphoreSlim semaphoreSlim = new SemaphoreSlim(1, 1);
+        private AudioClip _clip;
+
         public BeatSaverCustomSongCellInfo(BeatSaverSharp.Models.Beatmap song, Action<CustomListTableData.CustomCellInfo> callback, string text, string subtext = null) : base(text, subtext, null)
         {
             _song = song;
@@ -648,18 +663,53 @@ namespace BeatSaverDownloader.UI.ViewControllers
             base.icon = icon;
             _callback(this);
         }
+
+        internal async Task<AudioClip> LoadPreview()
+        {
+            await semaphoreSlim.WaitAsync();
+            try
+            {
+                if (_clip == null)
+                {
+                    var preview = await _song.LatestVersion.DownloadPreview();
+                    var file = new MpegFile(new MemoryStream(preview));
+                    var totalSamples = (int)file.Length;
+                    var samples = new float[totalSamples];
+                    await Task.Run(() =>
+                    {
+                        file.ReadSamples(samples, 0, totalSamples); // Slow
+                    });
+
+                    _clip = AudioClip.Create(_song.Name, totalSamples, file.Channels, file.SampleRate, false);
+                    _clip.SetData(samples, 0);
+                }
+            }
+            catch (Exception)
+            {
+                // If there's a problem loading audio we just don't play any
+                // Plugin.log.Critical(e);
+            }
+            finally
+            {
+                semaphoreSlim.Release();
+            }
+
+            return _clip;
+        }
     }
 
     public class ScoreSaberCustomSongCellInfo : CustomListTableData.CustomCellInfo
     {
         private readonly ScoreSaberSharp.Song _song;
         private readonly Action<CustomListTableData.CustomCellInfo> _callback;
+
         public ScoreSaberCustomSongCellInfo(ScoreSaberSharp.Song song, Action<CustomListTableData.CustomCellInfo> callback, string text, string subtext = null) : base(text, subtext, null)
         {
             _song = song;
             _callback = callback;
             LoadImage();
         }
+
         protected async void LoadImage()
         {
             byte[] image = await _song.FetchCoverImage();

@@ -56,7 +56,7 @@ namespace BeatSaverDownloader.UI.ViewControllers
                 item.AbortDownload();
             }
         }
-        internal async void EnqueueSongs(Tuple<BeatSaverSharp.Models.Beatmap, Sprite>[] songs, CancellationToken cancellationToken)
+        internal void EnqueueSongs(Tuple<BeatSaverSharp.Models.Beatmap, Sprite>[] songs, CancellationToken cancellationToken)
         {
 
             for (int i = 0; i < songs.Length; i++)
@@ -66,20 +66,7 @@ namespace BeatSaverDownloader.UI.ViewControllers
                 bool downloaded = false;
                 Tuple<BeatSaverSharp.Models.Beatmap, Sprite> pair = songs[i];
                 BeatSaverSharp.Models.Beatmap map = pair.Item1;
-                /*if (map.Partial)
-                {
-                    downloaded = SongDownloader.Instance.IsSongDownloaded(map.Hash);
-                    if (downloaded) continue;
-                    try
-                    {
-                        await map.Populate();
-                    }
-                    catch(BeatSaverSharp.Exceptions.InvalidPartialException ex)
-                    {
-                        Plugin.log.Warn("Map not found on BeatSaver");
-                            continue;
-                    }
-                }*/
+
                 bool inQueue = queueItems.Any(x => (x as DownloadQueueItem).beatmap == map);
                 downloaded = SongDownloader.Instance.IsSongDownloaded(map.LatestVersion.Hash);
                 if (!inQueue & !downloaded) EnqueueSong(map, pair.Item2);

@@ -5,6 +5,8 @@ using HMUI;
 using System;
 using UnityEngine;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
+
 namespace BeatSaverDownloader.UI
 {
     public class MoreSongsFlowCoordinator : FlowCoordinator
@@ -30,7 +32,7 @@ namespace BeatSaverDownloader.UI
                 _songDescriptionView = BeatSaberUI.CreateViewController<SongDescriptionViewController>();
                 _downloadQueueView = BeatSaberUI.CreateViewController<DownloadQueueViewController>();
 
-                _moreSongsView.didSelectSong += HandleDidSelectSong;
+                _moreSongsView.didSelectSongNew += HandleDidSelectSong;
                 _moreSongsView.filterDidChange += HandleFilterDidChange;
                 _moreSongsView.multiSelectDidChange += HandleMultiSelectDidChange;
                 _songDetailView.didPressDownload += HandleDidPressDownload;
@@ -87,7 +89,7 @@ namespace BeatSaverDownloader.UI
                     break;
             }
         }
-        internal void HandleDidSelectSong(StrongBox<BeatSaverSharp.Models.Beatmap> song, Sprite cover = null)
+        internal void HandleDidSelectSong(StrongBox<BeatSaverSharp.Models.Beatmap> song, Sprite cover = null, Task<AudioClip> clip = null)
         {
             _songDetailView.ClearData();
             _songDescriptionView.ClearData();
@@ -98,7 +100,7 @@ namespace BeatSaverDownloader.UI
                     PushViewControllerToNavigationController(_moreSongsNavigationcontroller, _songDetailView);
                 }
                 SetRightScreenViewController(_songDescriptionView, ViewController.AnimationType.None);
-                _songDetailView.Initialize(song, cover);
+                _songDetailView.Initialize(song, cover, clip);
             }
             else
             {
@@ -162,6 +164,7 @@ namespace BeatSaverDownloader.UI
             }
             _moreSongsView.Cleanup();
             _downloadQueueView.AbortAllDownloads();
+            PluginUI._songPreviewPlayer.CrossfadeToDefault();
             ParentFlowCoordinator.DismissFlowCoordinator(this);
         }
 

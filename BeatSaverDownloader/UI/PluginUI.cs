@@ -9,6 +9,7 @@ namespace BeatSaverDownloader.UI
     public class PluginUI : PersistentSingleton<PluginUI>
     {
         public MenuButton moreSongsButton;
+        internal static SongPreviewPlayer _songPreviewPlayer;
         internal MoreSongsFlowCoordinator _moreSongsFlowCooridinator;
         public static GameObject _levelDetailClone;
 
@@ -20,8 +21,11 @@ namespace BeatSaverDownloader.UI
 
         internal static void SetupLevelDetailClone()
         {
+            _songPreviewPlayer = Resources.FindObjectsOfTypeAll<SongPreviewPlayer>().First();
+
             _levelDetailClone = Instantiate(Resources.FindObjectsOfTypeAll<StandardLevelDetailView>().First(x => x.gameObject.name == "LevelDetail").gameObject);
             _levelDetailClone.gameObject.SetActive(false);
+
             Destroy(_levelDetailClone.GetComponent<StandardLevelDetailView>());
             var bsmlObjects = _levelDetailClone.GetComponentsInChildren<RectTransform>().Where(x => x.gameObject.name.StartsWith("BSML"));
             var hoverhints = _levelDetailClone.GetComponentsInChildren<HoverHint>();

@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Linq;
+using BeatSaverDownloader.BeastSaber;
 using UnityEngine;
 using BeatSaverDownloader.Misc;
 using TMPro;
@@ -15,7 +16,7 @@ using Color = UnityEngine.Color;
 using BeatSaverSharp;
 using UnityEngine.UI;
 using IPA.Utilities;
-using NLayer;
+using UnityEngine.Networking;
 
 namespace BeatSaverDownloader.UI.ViewControllers
 {
@@ -664,6 +665,40 @@ namespace BeatSaverDownloader.UI.ViewControllers
             _callback(this);
         }
 
+        public static async Task<bool> Download(UnityWebRequest www) {
+            www.SetRequestHeader("User-Agent", BeastSaberApiHelper.UserAgent);
+
+            var req = www.SendWebRequest();
+            var startThread = SynchronizationContext.Current;
+
+            Action<Action> post;
+
+            if(startThread == null) {
+                post = a => a();
+            } else {
+                post = a => startThread.Send(_ => a(), null);
+            }
+
+            await Task.Run(() => {
+                var lastState = 0f;
+                var timeouter = new System.Diagnostics.Stopwatch();
+                timeouter.Start();
+
+                while(!req.isDone) {
+                    if(timeouter.ElapsedMilliseconds > 50000 || (lastState == 0 && timeouter.ElapsedMilliseconds > 6000)) {
+                        post(www.Abort);
+                        throw new TimeoutException();
+                    }
+
+                    Thread.Sleep(20);
+
+                    lastState = www.downloadProgress;
+                }
+            });
+
+            return www.isDone && !www.isHttpError && !www.isNetworkError;
+        }
+
         internal async Task<AudioClip> LoadPreview()
         {
             await semaphoreSlim.WaitAsync();
@@ -671,17 +706,12 @@ namespace BeatSaverDownloader.UI.ViewControllers
             {
                 if (_clip == null)
                 {
-                    var preview = await _song.LatestVersion.DownloadPreview();
-                    var file = new MpegFile(new MemoryStream(preview));
-                    var totalSamples = (int)file.Length;
-                    var samples = new float[totalSamples];
-                    await Task.Run(() =>
-                    {
-                        file.ReadSamples(samples, 0, totalSamples); // Slow
-                    });
-
-                    _clip = AudioClip.Create(_song.Name, totalSamples, file.Channels, file.SampleRate, false);
-                    _clip.SetData(samples, 0);
+                    using(var www = UnityWebRequestMultimedia.GetAudioClip(_song.LatestVersion.PreviewURL, AudioType.UNKNOWN)) {
+                        if (await Download(www))
+                        {
+                            _clip = DownloadHandlerAudioClip.GetContent(www);
+                        }
+                    }
                 }
             }
             catch (Exception)

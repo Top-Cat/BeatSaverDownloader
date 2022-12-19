@@ -9,11 +9,13 @@ namespace BeatSaverDownloader.BeastSaber
     public static class BeastSaberApiHelper
     {
         private static HttpClient BeastSaberRequestClient;
+        public static string UserAgent;
 
         internal static void InitializeBeastSaberHttpClient(IPA.Loader.PluginMetadata metadata)
         {
+            UserAgent = $"BeatSaverDownloader/{metadata.HVersion}";
             BeastSaberRequestClient = new HttpClient() { BaseAddress = new Uri("https://bsaber.com/wp-json/bsaber-api/") };
-            BeastSaberRequestClient.DefaultRequestHeaders.Add("User-Agent", $"BeatSaverDownloader/{metadata.HVersion}");
+            BeastSaberRequestClient.DefaultRequestHeaders.Add("User-Agent", UserAgent);
         }
 
         public static async Task<BeastSaberApiResult> GetPage(Misc.Filters.BeastSaberFilterOptions filter, uint page, uint itemsPerPage, CancellationToken cancellationToken)

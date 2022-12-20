@@ -28,18 +28,18 @@ namespace BeatSaverDownloader.UI
                 _songDetailView = BeatSaberUI.CreateViewController<SongDetailViewController>();
                 _multiSelectDetailView = BeatSaberUI.CreateViewController<MultiSelectDetailViewController>();
                 _moreSongsNavigationcontroller = BeatSaberUI.CreateViewController<NavigationController>();
-                _moreSongsView.navController = _moreSongsNavigationcontroller;
+                _moreSongsView.NavController = _moreSongsNavigationcontroller;
                 _songDescriptionView = BeatSaberUI.CreateViewController<SongDescriptionViewController>();
                 _downloadQueueView = BeatSaberUI.CreateViewController<DownloadQueueViewController>();
 
-                _moreSongsView.didSelectSongNew += HandleDidSelectSong;
-                _moreSongsView.filterDidChange += HandleFilterDidChange;
-                _moreSongsView.multiSelectDidChange += HandleMultiSelectDidChange;
-                _songDetailView.didPressDownload += HandleDidPressDownload;
-                _songDetailView.didPressUploader += HandleDidPressUploader;
-                _songDetailView.setDescription += _songDescriptionView.Initialize;
-                _multiSelectDetailView.multiSelectClearPressed += _moreSongsView.MultiSelectClear;
-                _multiSelectDetailView.multiSelectDownloadPressed += HandleMultiSelectDownload;
+                _moreSongsView.DidSelectSong += HandleDidSelectSong;
+                _moreSongsView.FilterDidChange += HandleFilterDidChange;
+                _moreSongsView.MultiSelectDidChange += HandleMultiSelectDidChange;
+                _songDetailView.DidPressDownload += HandleDidPressDownload;
+                _songDetailView.DidPressUploader += HandleDidPressUploader;
+                _songDetailView.SetDescription += _songDescriptionView.Initialize;
+                _multiSelectDetailView.MultiSelectClearPressed += _moreSongsView.MultiSelectClear;
+                _multiSelectDetailView.MultiSelectDownloadPressed += HandleMultiSelectDownload;
             }
         }
 
@@ -73,23 +73,24 @@ namespace BeatSaverDownloader.UI
             ParentFlowCoordinator = parent;
         }
 
-        internal void UpdateTitle()
+        private void UpdateTitle()
         {
-            string localTitle = $"{_moreSongsView._currentFilter}";
-            switch (_moreSongsView._currentFilter)
+            var localTitle = $"{_moreSongsView.CurrentFilter}";
+            switch (_moreSongsView.CurrentFilter)
             {
                 case Filters.FilterMode.BeatSaver:
-                    SetTitle(localTitle + $" - {_moreSongsView._currentBeatSaverFilter.Name()}");
+                    SetTitle(localTitle + $" - {_moreSongsView.CurrentBeatSaverFilter.Name()}");
                     break;
                 case Filters.FilterMode.ScoreSaber:
-                    SetTitle(localTitle + $" - {_moreSongsView._currentScoreSaberFilter.Name()}");
+                    SetTitle(localTitle + $" - {_moreSongsView.CurrentScoreSaberFilter.Name()}");
                     break;
                 case Filters.FilterMode.BeastSaber:
-                    SetTitle(localTitle + $" - {_moreSongsView._currentBeastSaberFilter.Name()}");
+                    SetTitle(localTitle + $" - {Filters.BeastSaberFilterOptions.CuratorRecommended.Name()}");
                     break;
             }
         }
-        internal void HandleDidSelectSong(StrongBox<BeatSaverSharp.Models.Beatmap> song, Sprite cover = null, Task<AudioClip> clip = null)
+
+        private void HandleDidSelectSong(StrongBox<BeatSaverSharp.Models.Beatmap> song, Sprite cover = null, Task<AudioClip> clip = null)
         {
             _songDetailView.ClearData();
             _songDescriptionView.ClearData();
@@ -104,27 +105,27 @@ namespace BeatSaverDownloader.UI
             }
             else
             {
-                int count = _moreSongsView._multiSelectSongs.Count;
-                string grammar = count > 1 ? "Songs" : "Song";
+                var count = _moreSongsView.MultiSelectSongs.Count;
+                var grammar = count > 1 ? "Songs" : "Song";
                 _multiSelectDetailView.MultiDownloadText = $"Add {count} {grammar} To Queue";
             }
-
-
         }
 
-        internal void HandleDidPressDownload(BeatSaverSharp.Models.Beatmap song, Sprite cover)
+        private void HandleDidPressDownload(BeatSaverSharp.Models.Beatmap song, Sprite cover)
         {
             Plugin.log.Info("Download pressed for song: " + song.Metadata.SongName);
             //    Misc.SongDownloader.Instance.DownloadSong(song);
             _songDetailView.UpdateDownloadButtonStatus();
             _downloadQueueView.EnqueueSong(song, cover);
         }
-        internal void HandleMultiSelectDownload()
+
+        private void HandleMultiSelectDownload()
         {
-            _downloadQueueView.EnqueueSongs(_moreSongsView._multiSelectSongs.ToArray(), _downloadQueueView.cancellationTokenSource.Token);
+            _downloadQueueView.EnqueueSongs(_moreSongsView.MultiSelectSongs.ToArray(), _downloadQueueView.CancellationTokenSource.Token);
             _moreSongsView.MultiSelectClear();
         }
-        internal void HandleMultiSelectDidChange()
+
+        private void HandleMultiSelectDidChange()
         {
 
             if (_moreSongsView.MultiSelectEnabled)
@@ -141,12 +142,14 @@ namespace BeatSaverDownloader.UI
                 _moreSongsNavigationcontroller.PushViewController(_moreSongsView, null, true);
             }
         }
-        internal void HandleDidPressUploader(BeatSaverSharp.Models.User uploader)
+
+        private void HandleDidPressUploader(BeatSaverSharp.Models.User uploader)
         {
             Plugin.log.Info("Uploader pressed for user: " + uploader.Name);
             _moreSongsView.SortByUser(uploader);
         }
-        internal void HandleFilterDidChange()
+
+        private void HandleFilterDidChange()
         {
             UpdateTitle();
             if (_songDetailView.isInViewControllerHierarchy)
@@ -156,7 +159,8 @@ namespace BeatSaverDownloader.UI
             _songDetailView.ClearData();
             _songDescriptionView.ClearData();
         }
-        protected override void BackButtonWasPressed(ViewController topViewController)
+
+        protected override void BackButtonWasPressed(ViewController topView)
         {
             if (_songDetailView.isInViewControllerHierarchy)
             {
@@ -164,9 +168,8 @@ namespace BeatSaverDownloader.UI
             }
             _moreSongsView.Cleanup();
             _downloadQueueView.AbortAllDownloads();
-            PluginUI._songPreviewPlayer.CrossfadeToDefault();
+            PluginUI.SongPreviewPlayer.CrossfadeToDefault();
             ParentFlowCoordinator.DismissFlowCoordinator(this);
         }
-
     }
 }

@@ -11,7 +11,7 @@ namespace BeatSaverDownloader.Misc
 {
     public class SongDownloader : MonoBehaviour
     {
-        public event Action<BeatSaverSharp.Models.Beatmap> songDownloaded;
+        public event Action<BeatSaverSharp.Models.Beatmap> SongDownloaded;
 
         private static SongDownloader _instance = null;
 
@@ -23,14 +23,9 @@ namespace BeatSaverDownloader.Misc
                     _instance = new GameObject("SongDownloader").AddComponent<SongDownloader>();
                 return _instance;
             }
-            private set
-            {
-                _instance = value;
-            }
         }
 
         private HashSet<string> _alreadyDownloadedSongs;
-        private static bool _extractingZip;
 
         public void Awake()
         {
@@ -64,7 +59,7 @@ namespace BeatSaverDownloader.Misc
                 var zip = await song.LatestVersion.DownloadZIP(token, progress);
                 Plugin.log.Info("Downloaded zip!");
                 await ExtractZipAsync(song, zip, customSongsPath).ConfigureAwait(false);
-                songDownloaded?.Invoke(song);
+                SongDownloaded?.Invoke(song);
 
             }
             catch (Exception e)
@@ -78,44 +73,49 @@ namespace BeatSaverDownloader.Misc
             }
         }
 
-        private async Task ExtractZipAsync(BeatSaverSharp.Models.Beatmap songInfo, byte[] zip, string customSongsPath, bool overwrite = false)
+        private static async Task ExtractZipAsync(BeatSaverSharp.Models.Beatmap songInfo, byte[] zip, string customSongsPath, bool overwrite = false)
         {
-            Stream zipStream = new MemoryStream(zip);
-            try
+            using (Stream zipStream = new MemoryStream(zip))
             {
-                Plugin.log.Info("Extracting...");
-                _extractingZip = true;
-                ZipArchive archive = new ZipArchive(zipStream, ZipArchiveMode.Read);
-                string basePath = songInfo.ID + " (" + songInfo.Metadata.SongName + " - " + songInfo.Metadata.LevelAuthorName + ")";
-                basePath = string.Join("", basePath.Split((Path.GetInvalidFileNameChars().Concat(Path.GetInvalidPathChars()).ToArray())));
-                string path = customSongsPath + "/" + basePath;
-                if (!overwrite && Directory.Exists(path))
+                try
                 {
-                    int pathNum = 1;
-                    while (Directory.Exists(path + $" ({pathNum})")) ++pathNum;
-                    path += $" ({pathNum})";
-                }
-                if (!Directory.Exists(path))
-                    Directory.CreateDirectory(path);
-                Plugin.log.Info(path);
-                await Task.Run(() =>
-                {
-                    foreach (var entry in archive.Entries)
+                    Plugin.log.Info("Extracting...");
+                    using (var archive = new ZipArchive(zipStream, ZipArchiveMode.Read))
                     {
-                        var entryPath = Path.Combine(path, entry.Name); // Name instead of FullName for better security and because song zips don't have nested directories anyway
-                        if (overwrite || !File.Exists(entryPath)) // Either we're overwriting or there's no existing file
-                            entry.ExtractToFile(entryPath, overwrite);
+                        var basePath = songInfo.ID + " (" + songInfo.Metadata.SongName + " - " + songInfo.Metadata.LevelAuthorName + ")";
+                        basePath = string.Join("", basePath.Split(Path.GetInvalidFileNameChars().Concat(Path.GetInvalidPathChars()).ToArray()));
+                        var path = customSongsPath + "/" + basePath;
+                        if (!overwrite && Directory.Exists(path))
+                        {
+                            var pathNum = 1;
+                            while (Directory.Exists(path + $" ({pathNum})")) ++pathNum;
+                            path += $" ({pathNum})";
+                        }
+
+                        if (!Directory.Exists(path))
+                            Directory.CreateDirectory(path);
+                        Plugin.log.Info(path);
+                        await ExtractFiles(archive, path, overwrite).ConfigureAwait(false);
                     }
-                }).ConfigureAwait(false);
-                archive.Dispose();
+                }
+                catch (Exception e)
+                {
+                    Plugin.log.Critical($"Unable to extract ZIP! Exception: {e}");
+                }
             }
-            catch (Exception e)
+        }
+
+        private static Task ExtractFiles(ZipArchive archive, string path, bool overwrite)
+        {
+            return Task.Run(() =>
             {
-                Plugin.log.Critical($"Unable to extract ZIP! Exception: {e}");
-                _extractingZip = false;
-                return;
-            }
-            zipStream.Close();
+                foreach (var entry in archive.Entries)
+                {
+                    var entryPath = Path.Combine(path, entry.Name); // Name instead of FullName for better security and because song zips don't have nested directories anyway
+                    if (overwrite || !File.Exists(entryPath)) // Either we're overwriting or there's no existing file
+                        entry.ExtractToFile(entryPath, overwrite);
+                }
+            });
         }
 
         public void QueuedDownload(string hash)
@@ -124,7 +124,7 @@ namespace BeatSaverDownloader.Misc
                 Instance._alreadyDownloadedSongs.Add(hash);
         }
 
-        public bool IsSongDownloaded(string hash)
+        public static bool IsSongDownloaded(string hash)
         {
             return Instance._alreadyDownloadedSongs.Contains(hash.ToUpper());
         }

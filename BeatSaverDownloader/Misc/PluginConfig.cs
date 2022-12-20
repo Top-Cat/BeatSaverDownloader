@@ -2,15 +2,10 @@
 
 namespace BeatSaverDownloader.Misc
 {
-    public class PluginConfig
+    public static class PluginConfig
     {
-        static private BS_Utils.Utilities.Config config = new BS_Utils.Utilities.Config("BeatSaverDownloader");
-
-      //  public static string beatsaverURL = "https://beatsaver.com";
-
-      //  public static string scoresaberURL = "https://scoresaber.com";
-
-        public static int maxSimultaneousDownloads = 3;
+        private static readonly BS_Utils.Utilities.Config Config = new BS_Utils.Utilities.Config("BeatSaverDownloader");
+        public static int MaxSimultaneousDownloads = 3;
 
         public static void LoadConfig()
         {
@@ -22,18 +17,14 @@ namespace BeatSaverDownloader.Misc
             Load();
         }
 
-        public static void Load()
+        private static void Load()
         {
-      //      beatsaverURL = config.GetString("BeatSaverDownloader", "beatsaverURL", "https://beatsaver.com", true);
-       //     scoresaberURL = config.GetString("BeatSaverDownloader", "scoresaberURL", "https://scoresaber.com", true);
-            maxSimultaneousDownloads = config.GetInt("BeatSaverDownloader", "maxSimultaneousDownloads", 3, true);
+            MaxSimultaneousDownloads = Config.GetInt("BeatSaverDownloader", "maxSimultaneousDownloads", 3, true);
         }
 
         public static void SaveConfig()
         {
-       //     config.SetString("BeatSaverDownloader", "beatsaverURL", beatsaverURL);
-       //     config.SetString("BeatSaverDownloader", "scoresaberURL", scoresaberURL);
-            config.SetInt("BeatSaverDownloader", "maxSimultaneousDownloads", maxSimultaneousDownloads);
+            Config.SetInt("BeatSaverDownloader", "maxSimultaneousDownloads", MaxSimultaneousDownloads);
         }
     }
 }

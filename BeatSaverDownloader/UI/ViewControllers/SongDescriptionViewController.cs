@@ -7,27 +7,17 @@ namespace BeatSaverDownloader.UI.ViewControllers
         public override string ResourceName => "BeatSaverDownloader.UI.BSML.songDescription.bsml";
 
         [UIComponent("songDescription")]
-        internal TextPageScrollView songDescription;
-
-        protected override void DidDeactivate(bool removedFromHierarchy, bool screenSystemDisabling)
-        {
-            base.DidDeactivate(removedFromHierarchy, screenSystemDisabling);
-        }
+        private TextPageScrollView _songDescription;
 
         internal void ClearData()
         {
-            if (songDescription)
-                songDescription.SetText("");
+            if (_songDescription)
+                _songDescription.SetText("");
         }
 
         internal void Initialize(string description)
         {
-            songDescription.SetText(description);
-        }
-
-        [UIAction("#post-parse")]
-        internal void Setup()
-        {
+            _songDescription.SetText(description);
         }
     }
 }

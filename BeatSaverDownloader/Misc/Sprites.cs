@@ -87,40 +87,28 @@ namespace BeatSaverDownloader.Misc
             return Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), (Vector2.one / 2f));
         }
 
-        public static Texture2D Base64ToTexture2D(string encodedData)
+        private static Texture2D Base64ToTexture2D(string encodedData)
         {
-            byte[] imageData = Convert.FromBase64String(encodedData);
-            Texture2D Tex2D = new Texture2D(2, 2);
-            if (Tex2D.LoadImage(imageData))
-                return Tex2D;
-            else
-                return null;
-            //    Texture2D texture = new Texture2D(0, 0, TextureFormat.ARGB32, false, true);
-            //    texture.hideFlags = HideFlags.HideAndDontSave;
-            //    texture.filterMode = FilterMode.Trilinear;
-            //    texture.LoadImage(imageData);
-            //    return texture;
+            var imageData = Convert.FromBase64String(encodedData);
+            var tex2D = new Texture2D(2, 2);
+            return tex2D.LoadImage(imageData) ? tex2D : null;
         }
 
         // Image helpers
 
-        public static Texture2D LoadTextureRaw(byte[] file)
+        private static Texture2D LoadTextureRaw(byte[] file)
         {
-            if (file.Count() > 0)
-            {
-                Texture2D Tex2D = new Texture2D(2, 2);
-                if (Tex2D.LoadImage(file))
-                    return Tex2D;
-            }
-            return null;
+            if (!file.Any()) return null;
+
+            var tex2D = new Texture2D(2, 2);
+            return tex2D.LoadImage(file) ? tex2D : null;
         }
 
-        public static Texture2D LoadTextureFromFile(string FilePath)
+        private static Texture2D LoadTextureFromFile(string filePath)
         {
-            if (File.Exists(FilePath))
-                return LoadTextureRaw(File.ReadAllBytes(FilePath));
-
-            return null;
+            return File.Exists(filePath) ?
+                LoadTextureRaw(File.ReadAllBytes(filePath)) :
+                null;
         }
 
         public static Texture2D LoadTextureFromResources(string resourcePath)
@@ -128,34 +116,39 @@ namespace BeatSaverDownloader.Misc
             return LoadTextureRaw(GetResource(Assembly.GetCallingAssembly(), resourcePath));
         }
 
-        public static Sprite LoadSpriteRaw(byte[] image, float PixelsPerUnit = 100.0f)
+        public static Sprite LoadSpriteRaw(byte[] image, float pixelsPerUnit = 100.0f)
         {
-            return LoadSpriteFromTexture(LoadTextureRaw(image), PixelsPerUnit);
+            return LoadSpriteFromTexture(LoadTextureRaw(image), pixelsPerUnit);
         }
 
-        public static Sprite LoadSpriteFromTexture(Texture2D SpriteTexture, float PixelsPerUnit = 100.0f)
+        public static Sprite LoadSpriteFromTexture(Texture2D spriteTexture, float pixelsPerUnit = 100.0f)
         {
-            if (SpriteTexture)
-                return Sprite.Create(SpriteTexture, new Rect(0, 0, SpriteTexture.width, SpriteTexture.height), new Vector2(0, 0), PixelsPerUnit);
+            return spriteTexture ?
+                Sprite.Create(spriteTexture, new Rect(0, 0, spriteTexture.width, spriteTexture.height), new Vector2(0, 0), pixelsPerUnit) :
+                null;
+        }
+
+        public static Sprite LoadSpriteFromFile(string filePath, float pixelsPerUnit = 100.0f)
+        {
+            return LoadSpriteFromTexture(LoadTextureFromFile(filePath), pixelsPerUnit);
+        }
+
+        private static Sprite LoadSpriteFromResources(string resourcePath, float pixelsPerUnit = 100.0f)
+        {
+            return LoadSpriteRaw(GetResource(Assembly.GetCallingAssembly(), resourcePath), pixelsPerUnit);
+        }
+
+        private static byte[] GetResource(Assembly asm, string resourceName)
+        {
+            var stream = asm.GetManifestResourceStream(resourceName);
+            if (stream != null)
+            {
+                var data = new byte[stream.Length];
+                stream.Read(data, 0, (int) stream.Length);
+                return data;
+            }
+
             return null;
-        }
-
-        public static Sprite LoadSpriteFromFile(string FilePath, float PixelsPerUnit = 100.0f)
-        {
-            return LoadSpriteFromTexture(LoadTextureFromFile(FilePath), PixelsPerUnit);
-        }
-
-        public static Sprite LoadSpriteFromResources(string resourcePath, float PixelsPerUnit = 100.0f)
-        {
-            return LoadSpriteRaw(GetResource(Assembly.GetCallingAssembly(), resourcePath), PixelsPerUnit);
-        }
-
-        public static byte[] GetResource(Assembly asm, string ResourceName)
-        {
-            System.IO.Stream stream = asm.GetManifestResourceStream(ResourceName);
-            byte[] data = new byte[stream.Length];
-            stream.Read(data, 0, (int)stream.Length);
-            return data;
         }
     }
 }

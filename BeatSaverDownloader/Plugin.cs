@@ -65,8 +65,8 @@ namespace BeatSaverDownloader
 
         private void Loader_SongsLoadedEvent(SongCore.Loader arg1, ConcurrentDictionary<string, CustomPreviewBeatmapLevel> arg2)
         {
-            if (!PluginUI.instance.moreSongsButton.Interactable)
-                PluginUI.instance.moreSongsButton.Interactable = true;
+            if (!PluginUI.instance.MoreSongsButton.Interactable)
+                PluginUI.instance.MoreSongsButton.Interactable = true;
         }
 
         public void OnUpdate()

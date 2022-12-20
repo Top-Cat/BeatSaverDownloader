@@ -8,47 +8,44 @@ namespace BeatSaverDownloader.UI
 {
     public class PluginUI : PersistentSingleton<PluginUI>
     {
-        public MenuButton moreSongsButton;
-        internal static SongPreviewPlayer _songPreviewPlayer;
-        internal MoreSongsFlowCoordinator _moreSongsFlowCooridinator;
-        public static GameObject _levelDetailClone;
+        public MenuButton MoreSongsButton;
+        internal static SongPreviewPlayer SongPreviewPlayer;
+        private MoreSongsFlowCoordinator _moreSongsFlowCooridinator;
+        public static GameObject LevelDetailClone;
 
         internal void Setup()
         {
-            moreSongsButton = new MenuButton("More Songs", "Download More Songs from here!", MoreSongsButtonPressed, false);
-            MenuButtons.instance.RegisterButton(moreSongsButton);
+            MoreSongsButton = new MenuButton("More Songs", "Download More Songs from here!", MoreSongsButtonPressed, false);
+            MenuButtons.instance.RegisterButton(MoreSongsButton);
         }
 
         internal static void SetupLevelDetailClone()
         {
-            _songPreviewPlayer = Resources.FindObjectsOfTypeAll<SongPreviewPlayer>().First();
+            SongPreviewPlayer = Resources.FindObjectsOfTypeAll<SongPreviewPlayer>().First();
 
-            _levelDetailClone = Instantiate(Resources.FindObjectsOfTypeAll<StandardLevelDetailView>().First(x => x.gameObject.name == "LevelDetail").gameObject);
-            _levelDetailClone.gameObject.SetActive(false);
+            LevelDetailClone = Instantiate(Resources.FindObjectsOfTypeAll<StandardLevelDetailView>().First(x => x.gameObject.name == "LevelDetail").gameObject);
+            LevelDetailClone.gameObject.SetActive(false);
 
-            Destroy(_levelDetailClone.GetComponent<StandardLevelDetailView>());
-            var bsmlObjects = _levelDetailClone.GetComponentsInChildren<RectTransform>().Where(x => x.gameObject.name.StartsWith("BSML"));
-            var hoverhints = _levelDetailClone.GetComponentsInChildren<HoverHint>();
-            var localHoverHints = _levelDetailClone.GetComponentsInChildren<LocalizedHoverHint>();
+            Destroy(LevelDetailClone.GetComponent<StandardLevelDetailView>());
+            var bsmlObjects = LevelDetailClone.GetComponentsInChildren<RectTransform>().Where(x => x.gameObject.name.StartsWith("BSML"));
+            var hoverhints = LevelDetailClone.GetComponentsInChildren<HoverHint>();
+            var localHoverHints = LevelDetailClone.GetComponentsInChildren<LocalizedHoverHint>();
             foreach (var bsmlObject in bsmlObjects)
                 Destroy(bsmlObject.gameObject);
             foreach (var hoverhint in hoverhints)
                 Destroy(hoverhint);
             foreach (var hoverhint in localHoverHints)
                 Destroy(hoverhint);
-            Destroy(_levelDetailClone.transform.Find("FavoriteToggle").gameObject);
-            Destroy(_levelDetailClone.transform.Find("ActionButtons").gameObject);
-         //   Destroy(_levelDetailClone.transform.Find("Stats").Find("MaxCombo").gameObject);
-         //   Destroy(_levelDetailClone.transform.Find("Stats").Find("Highscore").gameObject);
-         //   Destroy(_levelDetailClone.transform.Find("Stats").Find("MaxRank").gameObject);
+            Destroy(LevelDetailClone.transform.Find("FavoriteToggle").gameObject);
+            Destroy(LevelDetailClone.transform.Find("ActionButtons").gameObject);
         }
 
-        internal void MoreSongsButtonPressed()
+        private void MoreSongsButtonPressed()
         {
             ShowMoreSongsFlow();
         }
 
-        internal void ShowMoreSongsFlow()
+        private void ShowMoreSongsFlow()
         {
             if (_moreSongsFlowCooridinator == null)
                 _moreSongsFlowCooridinator = BeatSaberUI.CreateFlowCoordinator<MoreSongsFlowCoordinator>();

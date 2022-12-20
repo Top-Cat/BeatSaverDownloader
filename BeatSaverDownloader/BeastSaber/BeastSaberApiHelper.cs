@@ -4,38 +4,35 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Net.Http;
+using Newtonsoft.Json;
+
 namespace BeatSaverDownloader.BeastSaber
 {
     public static class BeastSaberApiHelper
     {
-        private static HttpClient BeastSaberRequestClient;
+        private static HttpClient _beastSaberRequestClient;
         public static string UserAgent;
+        private static JsonSerializer _serializer = new JsonSerializer();
 
         internal static void InitializeBeastSaberHttpClient(IPA.Loader.PluginMetadata metadata)
         {
             UserAgent = $"BeatSaverDownloader/{metadata.HVersion}";
-            BeastSaberRequestClient = new HttpClient() { BaseAddress = new Uri("https://bsaber.com/wp-json/bsaber-api/") };
-            BeastSaberRequestClient.DefaultRequestHeaders.Add("User-Agent", UserAgent);
+            _beastSaberRequestClient = new HttpClient() { BaseAddress = new Uri("https://bsaber.com/wp-json/bsaber-api/") };
+            _beastSaberRequestClient.DefaultRequestHeaders.Add("User-Agent", UserAgent);
         }
 
-        public static async Task<BeastSaberApiResult> GetPage(Misc.Filters.BeastSaberFilterOptions filter, uint page, uint itemsPerPage, CancellationToken cancellationToken)
+        public static async Task<BeastSaberApiResult> GetPage(uint page, uint itemsPerPage, CancellationToken cancellationToken)
         {
-            string apiUrl = "";
+            var apiUrl = $"songs?bookmarked_by=curatorrecommended&page={page + 1}&count={itemsPerPage}";
             try
             {
-                Newtonsoft.Json.JsonSerializer serializer = new Newtonsoft.Json.JsonSerializer();
-                switch (filter)
-                {
-                    case Misc.Filters.BeastSaberFilterOptions.CuratorRecommended:
-                        apiUrl = $"songs?bookmarked_by=curatorrecommended&page={page + 1}&count={itemsPerPage}";
-                        break;
-                }
-                HttpResponseMessage response = await BeastSaberRequestClient.GetAsync(apiUrl, cancellationToken);
+                var response = await _beastSaberRequestClient.GetAsync(apiUrl, cancellationToken);
                 response.EnsureSuccessStatusCode();
-                Stream result = await response.Content.ReadAsStreamAsync();
-                StreamReader reader = new StreamReader(result);
-                Newtonsoft.Json.JsonReader jsonReader = new Newtonsoft.Json.JsonTextReader(reader);
-                return serializer.Deserialize<BeastSaber.BeastSaberApiResult>(jsonReader);
+
+                var result = await response.Content.ReadAsStreamAsync();
+                var reader = new StreamReader(result);
+                var jsonReader = new JsonTextReader(reader);
+                return _serializer.Deserialize<BeastSaberApiResult>(jsonReader);
             }
             catch (Exception ex)
             {

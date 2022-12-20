@@ -120,15 +120,21 @@
     <Compile Include="Plugin.cs" />
     <Compile Include="Misc\PluginConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SimpleJSON.cs" />
     <Compile Include="UI\MoreSongsFlowCoordinator.cs" />
     <Compile Include="UI\PluginUI.cs" />
     <Compile Include="UI\Settings.cs" />
+    <Compile Include="UI\ViewControllers\DownloadQueue\Item.cs" />
     <Compile Include="UI\ViewControllers\MoreSongsListViewController.cs" />
     <Compile Include="UI\ViewControllers\DownloadQueueViewController.cs" />
+    <Compile Include="UI\ViewControllers\MoreSongsList\BeatSaver.cs" />
+    <Compile Include="UI\ViewControllers\MoreSongsList\ScoreSaber.cs" />
+    <Compile Include="UI\ViewControllers\MoreSongsList\SortFilter.cs" />
+    <Compile Include="UI\ViewControllers\MoreSongsList\SortFilterCell.cs" />
+    <Compile Include="UI\ViewControllers\MoreSongsList\SourceCell.cs" />
     <Compile Include="UI\ViewControllers\MultiSelectDetailViewController.cs" />
     <Compile Include="UI\ViewControllers\SongDescriptionViewController.cs" />
     <Compile Include="UI\ViewControllers\SongDetailViewController.cs" />
+    <Compile Include="UI\ViewControllers\SongDetail\Util.cs" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />

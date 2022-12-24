@@ -282,7 +282,7 @@ namespace BeatSaverDownloader.UI.ViewControllers
             _characteristicSegmentedControl.SetData(characteristics.ToArray());
         }
 
-        readonly Dictionary<BeatmapDifficulty.BeatSaverBeatmapDifficulty, string> _difficultyNameLookup =
+        private readonly Dictionary<BeatmapDifficulty.BeatSaverBeatmapDifficulty, string> _difficultyNameLookup =
             new Dictionary<BeatmapDifficulty.BeatSaverBeatmapDifficulty, string>
         {
             { BeatmapDifficulty.BeatSaverBeatmapDifficulty.Easy, "Easy" },

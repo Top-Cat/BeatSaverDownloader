@@ -84,7 +84,10 @@ namespace BeatSaverDownloader.UI.ViewControllers.MoreSongsList
                     {
                         if (await Download(www))
                         {
-                            _clip = DownloadHandlerAudioClip.GetContent(www);
+                            if (www.downloadedBytes > 0)
+                            {
+                                _clip = DownloadHandlerAudioClip.GetContent(www);
+                            }
                         }
                     }
                 }

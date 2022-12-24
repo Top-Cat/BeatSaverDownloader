@@ -13,6 +13,7 @@ namespace BeatSaverDownloader.UI.ViewControllers.SongDetail
         public static TextSegmentedControl CreateTextSegmentedControl(RectTransform parent, Vector2 anchoredPosition, Vector2 sizeDelta, Action<int> onValueChanged = null, float fontSize = 4f, float padding = 8f)
         {
             var segmentedControl = new GameObject("CustomTextSegmentedControl", typeof(RectTransform)).AddComponent<TextSegmentedControl>();
+            segmentedControl.SetField("_hideCellBackground", true);
             segmentedControl.gameObject.AddComponent<HorizontalLayoutGroup>();
 
             var segments = Resources.FindObjectsOfTypeAll<TextSegmentedControlCell>();
@@ -44,6 +45,7 @@ namespace BeatSaverDownloader.UI.ViewControllers.SongDetail
         public static IconSegmentedControl CreateIconSegmentedControl(RectTransform parent, Vector2 anchoredPosition, Vector2 sizeDelta, Action<int> onValueChanged = null)
         {
             var segmentedControl = new GameObject("CustomIconSegmentedControl", typeof(RectTransform)).AddComponent<IconSegmentedControl>();
+            segmentedControl.SetField("_hideCellBackground", true);
             segmentedControl.gameObject.AddComponent<HorizontalLayoutGroup>();
 
             var segments = Resources.FindObjectsOfTypeAll<IconSegmentedControlCell>();

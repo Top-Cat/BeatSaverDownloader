@@ -154,7 +154,9 @@ namespace BeatSaverDownloader.Bookmarks
 
             return await MakeRequest(req, () => Task.CompletedTask, () => MakeBookmarkRequest(bReq, token), response =>
             {
-                if (bReq.Hash != null)
+                var result = response?.StatusCode == HttpStatusCode.NotFound ? (bool?) null : response?.IsSuccessStatusCode == true;
+
+                if (bReq.Hash != null && result == true)
                 {
                     if (bReq.Bookmarked)
                     {
@@ -166,7 +168,7 @@ namespace BeatSaverDownloader.Bookmarks
                     }
                 }
 
-                return Task.FromResult(response?.StatusCode == HttpStatusCode.NotFound ? (bool?) null : response?.IsSuccessStatusCode == true);
+                return Task.FromResult(result);
             }, token, false);
         }
 

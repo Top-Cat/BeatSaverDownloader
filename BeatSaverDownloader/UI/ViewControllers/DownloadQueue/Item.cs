@@ -3,7 +3,6 @@ using System.ComponentModel;
 using System.Threading;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
-using BeatSaverDownloader.Misc;
 using TMPro;
 using UnityEngine;
 
@@ -11,12 +10,10 @@ namespace BeatSaverDownloader.UI.ViewControllers.DownloadQueue
 {
     internal class DownloadQueueItem : INotifyPropertyChanged
     {
-        public SongQueueState queueState = SongQueueState.Queued;
-        internal Progress<double> downloadProgress;
-        internal BeatSaverSharp.Models.Beatmap beatmap;
+        private QueueManager.QueueItem _item;
+        internal readonly BeatSaverSharp.Models.Beatmap Beatmap;
         private UnityEngine.UI.Image _bgImage;
         private float _downloadingProgess;
-        internal CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         public event PropertyChangedEventHandler PropertyChanged;
 
         [UIComponent("coverImage")]
@@ -31,24 +28,25 @@ namespace BeatSaverDownloader.UI.ViewControllers.DownloadQueue
         [UIAction("abortClicked")]
         internal void AbortDownload()
         {
-            cancellationTokenSource.Cancel();
-            DownloadQueueViewController.DidAbortDownload?.Invoke(this);
+            _item.Cancel();
         }
 
         private string _songName;
         private string _authorName;
         private Sprite _cover;
 
-        public DownloadQueueItem()
+        public DownloadQueueItem(QueueManager.QueueItem item)
         {
-        }
+            _item = item;
 
-        public DownloadQueueItem(BeatSaverSharp.Models.Beatmap song, Sprite cover)
-        {
-            beatmap = song;
-            _songName = song.Metadata.SongName;
-            _cover = cover;
-            _authorName = $"{song.Metadata.SongAuthorName} <size=80%>[{song.Metadata.LevelAuthorName}]";
+            Beatmap = item.Beatmap;
+            _songName = Beatmap.Metadata.SongName;
+            _cover = item.Sprite;
+            _authorName = $"{Beatmap.Metadata.SongAuthorName} <size=80%>[{Beatmap.Metadata.LevelAuthorName}]";
+
+            item.DownloadCancelled += () => DownloadQueueViewController.DidAbortDownload?.Invoke(this);
+            item.DownloadProgress += ProgressUpdate;
+            item.DownloadCompleted += () => DownloadQueueViewController.DidFinishDownloadingItem?.Invoke(this);
         }
 
         [UIAction("#post-parse")]
@@ -64,7 +62,6 @@ namespace BeatSaverDownloader.UI.ViewControllers.DownloadQueue
             _coverImage.rectTransform.sizeDelta = new Vector2(8, 0);
             _songNameText.text = _songName;
             _authorNameText.text = _authorName;
-            downloadProgress = new Progress<double>(ProgressUpdate);
 
             _bgImage = _coverImage.transform.parent.gameObject.AddComponent<HMUI.ImageView>();
             _bgImage.enabled = true;
@@ -82,18 +79,6 @@ namespace BeatSaverDownloader.UI.ViewControllers.DownloadQueue
             color.a = 0.35f;
             _bgImage.color = color;
             _bgImage.fillAmount = _downloadingProgess;
-        }
-
-        public async void Download()
-        {
-            queueState = SongQueueState.Downloading;
-            await SongDownloader.Instance.DownloadSong(beatmap, cancellationTokenSource.Token, downloadProgress);
-            queueState = SongQueueState.Downloaded;
-            DownloadQueueViewController.DidFinishDownloadingItem?.Invoke(this);
-        }
-
-        public void Update()
-        {
         }
     }
 }

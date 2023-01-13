@@ -44,17 +44,13 @@ namespace BeatSaverDownloader.Misc
         public static Sprite ScoreSaberIcon;
         //by elliotttate#9942
         public static Sprite BeastSaberLogo;
-        public static Sprite BeastSaberLogoSmall;
         public static void ConvertToSprites()
         {
-            Plugin.log.Info("Creating sprites...");
-
             AddToFavorites = LoadSpriteFromResources("BeatSaverDownloader.Assets.AddToFavorites.png");
             RemoveFromFavorites = LoadSpriteFromResources("BeatSaverDownloader.Assets.RemoveFromFavorites.png");
             StarFull = LoadSpriteFromResources("BeatSaverDownloader.Assets.StarFull.png");
             StarEmpty = LoadSpriteFromResources("BeatSaverDownloader.Assets.StarEmpty.png");
             BeastSaberLogo = LoadSpriteFromResources("BeatSaverDownloader.Assets.BeastSaberLogo.png");
-            BeastSaberLogoSmall = LoadSpriteFromResources("BeatSaverDownloader.Assets.BeastSaberLogoShrunk.png");
             ReviewIcon = LoadSpriteFromResources("BeatSaverDownloader.Assets.ReviewIcon.png");
             ThumbUp = LoadSpriteFromResources("BeatSaverDownloader.Assets.ThumbUp.png");
             ThumbDown = LoadSpriteFromResources("BeatSaverDownloader.Assets.ThumbDown.png");
@@ -67,8 +63,6 @@ namespace BeatSaverDownloader.Misc
             DeleteIcon = LoadSpriteFromResources("BeatSaverDownloader.Assets.DeleteIcon.png");
             BeatSaverIcon = LoadSpriteFromResources("BeatSaverDownloader.Assets.BeatSaver.png");
             ScoreSaberIcon = LoadSpriteFromResources("BeatSaverDownloader.Assets.ScoreSaber.png");
-
-            Plugin.log.Info("Creating sprites... Done!");
         }
 
         public static string SpriteToBase64(Sprite input)

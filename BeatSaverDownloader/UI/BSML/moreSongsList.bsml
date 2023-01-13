@@ -20,9 +20,16 @@
       <button  id="searchButton" pad="0" pref-height="8" pref-width="20" text="Search" on-click="searchOpened" click-event="open-searchKeyboard" ></button>
       <button id="sortButton" pad="0" pref-height="8" pref-width="20" click-event="open-sourceModal" on-click="sortPressed" text="Sort"></button>
 
+      <icon-button id="syncButton" pad="2" pref-height="10" pref-width="20" on-click="syncPressed" icon="BeatSaverDownloader.Assets.SyncBookmarks.png" interactable="~syncEnabled" hover-hint="Sync Bookmarks"></icon-button>
     </horizontal>
     <modal id="loadingModal" show-event="open-loadingModal" hide-event="close-loadingModal,closeAllModals" move-to-center="true" size-delta-y="35" size-delta-x="48">
       <button id="abortButton" on-click="abortClicked" text="Abort" ignore-layout="true" anchor-min-x="0.5" anchor-max-x="0.5" anchor-pos-y="-30" anchor-pos-x="0" pref-height="8" pref-width="35" pad="0" ></button>
+    </modal>
+    <modal id="oauthModal" show-event="open-oauthModal" hide-event="close-oauthModal,closeAllModals" move-to-center="true" size-delta-y="35" size-delta-x="70">
+        <vertical horizontal-fit='PreferredSize' vertical-fit='PreferredSize' spacing='3' preferred-width='60' preferred-height='30'>
+            <text text='Beatsaver opened in an external browser. Please login and allow BSDL to access your bookmarks and then return to VR.' word-wrapping='true' align='Center' />
+            <button text='Cancel' on-click='cancelOauth' pref-width='16' pref-height='8' />
+        </vertical>
     </modal>
     <page-button event-click="list#PageUp" on-click="pageUpPressed" direction="Up"></page-button>
     <list id="list" expand-cell="true" select-cell="listSelect">

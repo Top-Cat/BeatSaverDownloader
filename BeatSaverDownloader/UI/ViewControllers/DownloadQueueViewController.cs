@@ -2,7 +2,6 @@
 using BeatSaberMarkupLanguage.Components;
 using BeatSaverDownloader.Misc;
 using System;
-using System.Threading;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -16,7 +15,7 @@ namespace BeatSaverDownloader.UI.ViewControllers
         public override string ResourceName => "BeatSaverDownloader.UI.BSML.downloadQueue.bsml";
         internal static Action<DownloadQueueItem> DidAbortDownload;
         internal static Action<DownloadQueueItem> DidFinishDownloadingItem;
-        internal CancellationTokenSource CancellationTokenSource = new CancellationTokenSource();
+        private QueueManager QueueManager;
 
         [UIValue("download-queue")]
         private readonly List<object> _queueItems = new List<object>();
@@ -27,9 +26,17 @@ namespace BeatSaverDownloader.UI.ViewControllers
         [UIAction("#post-parse")]
         internal void Setup()
         {
-            Reload();
-            DidAbortDownload += DownloadAborted;
+            DidAbortDownload += UpdateDownloadingState;
             DidFinishDownloadingItem += UpdateDownloadingState;
+
+            Reload();
+        }
+
+        internal void AddQueueManager(QueueManager manager)
+        {
+            QueueManager = manager;
+            _queueItems.AddRange(QueueManager.QueueItems.Select(item => new DownloadQueueItem(item)));
+            Reload();
         }
 
         private void Reload()
@@ -42,60 +49,35 @@ namespace BeatSaverDownloader.UI.ViewControllers
 
         internal void EnqueueSong(Beatmap song, Sprite cover)
         {
-            var queuedSong = new DownloadQueueItem(song, cover);
+            var queueItem = QueueManager.AddToQueue(song, cover);
+            var queuedSong = new DownloadQueueItem(queueItem);
+
             _queueItems.Add(queuedSong);
-            SongDownloader.Instance.QueuedDownload(song.LatestVersion.Hash.ToUpper());
+
             Reload();
-            UpdateDownloadingState(queuedSong);
+        }
+
+        internal void EnqueueSongs(IEnumerable<Tuple<Beatmap, Sprite>> songs)
+        {
+            foreach (var (map, sprite) in songs)
+            {
+                var inQueue = _queueItems.Any(x => (x as DownloadQueueItem)?.Beatmap == map);
+                var downloaded = SongDownloader.IsSongDownloaded(map.LatestVersion.Hash);
+                if (!inQueue & !downloaded) EnqueueSong(map, sprite);
+            }
         }
 
         internal void AbortAllDownloads()
         {
-            CancellationTokenSource.Cancel();
-            CancellationTokenSource.Dispose();
-            CancellationTokenSource = new CancellationTokenSource();
             foreach (DownloadQueueItem item in _queueItems.ToArray())
             {
                 item.AbortDownload();
             }
         }
 
-        internal void EnqueueSongs(IEnumerable<Tuple<Beatmap, Sprite>> songs, CancellationToken cancellationToken)
-        {
-            foreach (var (map, sprite) in songs)
-            {
-                if (cancellationToken.IsCancellationRequested)
-                    return;
-
-                var inQueue = _queueItems.Any(x => (x as DownloadQueueItem)?.beatmap == map);
-                var downloaded = SongDownloader.IsSongDownloaded(map.LatestVersion.Hash);
-                if (!inQueue & !downloaded) EnqueueSong(map, sprite);
-            }
-        }
-
         private void UpdateDownloadingState(DownloadQueueItem item)
         {
-            foreach (DownloadQueueItem inQueue in _queueItems.Where(x => (x as DownloadQueueItem)?.queueState == SongQueueState.Queued).ToArray())
-            {
-                if (PluginConfig.MaxSimultaneousDownloads > _queueItems.Where(x => (x as DownloadQueueItem)?.queueState == SongQueueState.Downloading).ToArray().Length)
-                    inQueue.Download();
-            }
-            foreach (DownloadQueueItem downloaded in _queueItems.Where(x => (x as DownloadQueueItem)?.queueState == SongQueueState.Downloaded).ToArray())
-            {
-                _queueItems.Remove(downloaded);
-                Reload();
-            }
-            if (_queueItems.Count == 0)
-                SongCore.Loader.Instance.RefreshSongs(false);
-        }
-
-        private void DownloadAborted(DownloadQueueItem download)
-        {
-            if (_queueItems.Contains(download))
-                _queueItems.Remove(download);
-
-            if (_queueItems.Count == 0)
-                SongCore.Loader.Instance.RefreshSongs(false);
+            _queueItems.Remove(item);
 
             Reload();
         }

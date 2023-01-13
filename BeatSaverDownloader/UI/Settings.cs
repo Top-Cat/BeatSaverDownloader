@@ -1,19 +1,60 @@
-﻿using BeatSaberMarkupLanguage.Attributes;
+﻿using System.Collections.Generic;
+using BeatSaberMarkupLanguage.Attributes;
+using BeatSaberMarkupLanguage.Components;
+using BeatSaberMarkupLanguage.Settings;
+using BeatSaverDownloader.Bookmarks;
+using BeatSaverDownloader.Misc;
 
 namespace BeatSaverDownloader.UI
 {
-    public class Settings : PersistentSingleton<Settings>
+    public class Settings : NotifiableSingleton<Settings>
     {
-        [UIValue("toggle1")]
-        public bool toggle1
+        [UIValue("syncOnLoad")]
+        public bool SyncOnLoad
         {
-            get { /*fetch value*/ return true; }
-            set { /*Update value*/ }
+            get => PluginConfig.SyncOnLoad;
+            set
+            {
+                PluginConfig.SyncOnLoad = value;
+                PluginConfig.SaveConfig();
+                NotifyPropertyChanged();
+            }
         }
+
+        [UIValue("logoutInteractable")]
+        public bool LogoutInteractable
+        {
+            get => PluginConfig.UserTokens?.CouldBeValid == true;
+            set => NotifyPropertyChanged();
+        }
+
+        [UIAction("logout")]
+        private void Logout()
+        {
+            PluginConfig.UserTokens = null;
+            PluginConfig.SaveConfig();
+
+            LogoutInteractable = true;
+        }
+
+        [UIValue("envChoice")]
+        public string EnvChoice
+        {
+            get => PluginConfig.OauthEnvironment;
+            set
+            {
+                PluginConfig.OauthEnvironment = value;
+                PluginConfig.SaveConfig();
+                NotifyPropertyChanged();
+            }
+        }
+
+        [UIValue("envOptions")]
+        public List<object> EnvOptions => OauthConfig.Options;
 
         public static void SetupSettings()
         {
-      //      BSMLSettings.instance.AddSettingsMenu("BeatSaverDownloader", "BeatSaverDownloader.UI.BSML.settings.bsml", instance);
+            BSMLSettings.instance.AddSettingsMenu("BeatSaverDL", "BeatSaverDownloader.UI.BSML.settings.bsml", instance);
         }
     }
 }

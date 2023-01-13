@@ -43,7 +43,7 @@ namespace BeatSaverDownloader.Misc
 
         private void SongLoader_SongsLoadedEvent(SongCore.Loader sender, ConcurrentDictionary<string, CustomPreviewBeatmapLevel> levels)
         {
-            Plugin.log.Debug("Establishing Already Downloaded Songs");
+            Plugin.LOG.Debug("Establishing Already Downloaded Songs");
             _alreadyDownloadedSongs = new HashSet<string>(levels.Values.Select(x => SongCore.Collections.hashForLevelID(x.levelID)));
         }
 
@@ -57,17 +57,18 @@ namespace BeatSaverDownloader.Misc
                     Directory.CreateDirectory(customSongsPath);
                 }
                 var zip = await song.LatestVersion.DownloadZIP(token, progress);
-                Plugin.log.Info("Downloaded zip!");
+                Plugin.LOG.Info("Downloaded zip!");
                 await ExtractZipAsync(song, zip, customSongsPath).ConfigureAwait(false);
                 SongDownloaded?.Invoke(song);
 
             }
             catch (Exception e)
             {
+                Plugin.LOG.Critical(e);
                 if (e is TaskCanceledException)
-                    Plugin.log.Warn("Song Download Aborted.");
+                    Plugin.LOG.Warn("Song Download Aborted.");
                 else
-                    Plugin.log.Critical("Failed to download Song!");
+                    Plugin.LOG.Critical("Failed to download Song!");
                 if (_alreadyDownloadedSongs.Contains(song.LatestVersion.Hash.ToUpper()))
                     _alreadyDownloadedSongs.Remove(song.LatestVersion.Hash.ToUpper());
             }
@@ -79,7 +80,7 @@ namespace BeatSaverDownloader.Misc
             {
                 try
                 {
-                    Plugin.log.Info("Extracting...");
+                    Plugin.LOG.Info("Extracting...");
                     using (var archive = new ZipArchive(zipStream, ZipArchiveMode.Read))
                     {
                         var basePath = songInfo.ID + " (" + songInfo.Metadata.SongName + " - " + songInfo.Metadata.LevelAuthorName + ")";
@@ -94,13 +95,13 @@ namespace BeatSaverDownloader.Misc
 
                         if (!Directory.Exists(path))
                             Directory.CreateDirectory(path);
-                        Plugin.log.Info(path);
+                        Plugin.LOG.Info(path);
                         await ExtractFiles(archive, path, overwrite).ConfigureAwait(false);
                     }
                 }
                 catch (Exception e)
                 {
-                    Plugin.log.Critical($"Unable to extract ZIP! Exception: {e}");
+                    Plugin.LOG.Critical($"Unable to extract ZIP! Exception: {e}");
                 }
             }
         }

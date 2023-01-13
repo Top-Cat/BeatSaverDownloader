@@ -1,3 +1,5 @@
 ﻿<settings-container>
-  <checkbox-setting text="Toggle Setting" value="toggle1" hover-hint="Hover Text"></checkbox-setting>
+  <checkbox-setting text="Sync on launch" value="syncOnLoad" hover-hint="Automatically sync bookmarks when launching the game"></checkbox-setting>
+  <dropdown-list-setting text="Environment" value="envChoice" choices="envOptions"></dropdown-list-setting>
+  <button text='Logout' interactable='~logoutInteractable' on-click='logout'></button>
 </settings-container>

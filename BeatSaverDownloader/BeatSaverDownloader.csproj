@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>BeatSaverDownloader</RootNamespace>
     <AssemblyName>BeatSaverDownloader</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <LangVersion>7.1</LangVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -71,6 +71,9 @@
     <Reference Include="SongCore">
       <HintPath>$(BeatSaberDir)\Plugins\SongCore.dll</HintPath>
     </Reference>
+    <Reference Include="BetterSongList">
+      <HintPath>$(BeatSaberDir)\Plugins\BetterSongList.dll</HintPath>
+    </Reference>
     <Reference Include="netstandard" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -110,12 +113,16 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BeastSaber\BeastSaberApiHelper.cs" />
-    <Compile Include="BeastSaber\BeastSaberApiResult.cs" />
+    <Compile Include="Bookmarks\BookmarksApi.cs" />
+    <Compile Include="Bookmarks\CallbackListener.cs" />
+    <Compile Include="Bookmarks\Crypto.cs" />
+    <Compile Include="Bookmarks\Data.cs" />
+    <Compile Include="Bookmarks\OauthConfig.cs" />
+    <Compile Include="Bookmarks\TokenApi.cs" />
+    <Compile Include="Bookmarks\BookmarksFilter.cs" />
     <Compile Include="Misc\Filters.cs" />
     <Compile Include="Misc\SongDownloader.cs" />
     <Compile Include="Misc\Sprites.cs" />
-    <Compile Include="Misc\FileOperationAPIWrapper.cs" />
     <Compile Include="Misc\CustomHelpers.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Misc\PluginConfig.cs" />
@@ -124,6 +131,7 @@
     <Compile Include="UI\PluginUI.cs" />
     <Compile Include="UI\Settings.cs" />
     <Compile Include="UI\ViewControllers\DownloadQueue\Item.cs" />
+    <Compile Include="UI\ViewControllers\DownloadQueue\QueueManager.cs" />
     <Compile Include="UI\ViewControllers\MoreSongsListViewController.cs" />
     <Compile Include="UI\ViewControllers\DownloadQueueViewController.cs" />
     <Compile Include="UI\ViewControllers\MoreSongsList\BeatSaver.cs" />
@@ -157,28 +165,14 @@
     <EmbeddedResource Include="Assets\RemoveFromFavorites.png" />
     <EmbeddedResource Include="UI\BSML\moreSongsList.bsml" />
     <EmbeddedResource Include="UI\BSML\settings.bsml" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="manifest.json" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="UI\BSML\songDescription.bsml" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="UI\BSML\downloadQueue.bsml" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="UI\BSML\songDetail.bsml" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Assets\BeatSaver.png" />
     <EmbeddedResource Include="Assets\ScoreSaber.png" />
-  </ItemGroup>
-  <ItemGroup>
+    <EmbeddedResource Include="Assets\SyncBookmarks.png" />
     <EmbeddedResource Include="UI\BSML\multiSelectDetailView.bsml" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Assets\BeastSaberLogoShrunk.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Linq;
+using BeatSaverDownloader.Bookmarks;
 using UnityEngine;
 using BeatSaverDownloader.Misc;
 using BeatSaverDownloader.UI.ViewControllers.MoreSongsList;
@@ -20,15 +21,14 @@ using ScoreSaberSharp;
 
 namespace BeatSaverDownloader.UI.ViewControllers
 {
-
-    public class MoreSongsListViewController : BeatSaberMarkupLanguage.ViewControllers.BSMLResourceViewController
+    internal class MoreSongsListViewController : BeatSaberMarkupLanguage.ViewControllers.BSMLResourceViewController
     {
 
         internal Filters.FilterMode CurrentFilter = Filters.FilterMode.BeatSaver;
         private Filters.FilterMode _previousFilter = Filters.FilterMode.BeatSaver;
-        internal Filters.BeatSaverFilterOptions CurrentBeatSaverFilter = Filters.BeatSaverFilterOptions.Hot;
+        internal Filters.BeatSaverFilterOptions CurrentBeatSaverFilter = Filters.BeatSaverFilterOptions.Curated;
         internal Filters.ScoreSaberFilterOptions CurrentScoreSaberFilter = Filters.ScoreSaberFilterOptions.Trending;
-        private BeatSaverSharp.Models.User _currentUploader;
+        private User _currentUploader;
         private string _currentSearch;
         private string _fetchingDetails = "";
         public override string ResourceName => "BeatSaverDownloader.UI.BSML.moreSongsList.bsml";
@@ -145,6 +145,59 @@ namespace BeatSaverDownloader.UI.ViewControllers
             sortListTableData.tableView.ClearSelection();
         }
 
+        [UIValue("syncEnabled")]
+        public bool SyncEnabled
+        {
+            get => _syncEnable;
+            set
+            {
+                _syncEnable = value;
+                NotifyPropertyChanged();
+            }
+        }
+        private bool _syncEnable = true;
+
+        [UIAction("syncPressed")]
+        internal async void SyncPressed()
+        {
+            SyncEnabled = false;
+
+            try
+            {
+                await _bookmarksApi.Sync(true, SyncCallback);
+            }
+            catch (TokenApi.InvalidOauthCredentialsException)
+            {
+                _parserParams.EmitEvent("open-oauthModal");
+            }
+            finally
+            {
+                SyncEnabled = true;
+            }
+        }
+
+        private async Task SyncCallback()
+        {
+            SyncEnabled = false;
+
+            try
+            {
+                _parserParams.EmitEvent("close-oauthModal");
+
+                await _bookmarksApi.Sync(false);
+            }
+            finally
+            {
+                SyncEnabled = true;
+            }
+        }
+
+        [UIAction("cancelOauth")]
+        internal void CancelOauth()
+        {
+            _parserParams.EmitEvent("close-oauthModal");
+        }
+
         [UIAction("sortSelect")]
         internal async void SelectedSortOption(TableView tableView, int row)
         {
@@ -231,6 +284,8 @@ namespace BeatSaverDownloader.UI.ViewControllers
         [UIComponent("songsPageDown")]
         private Button _songsDownButton;
 
+        private BookmarksApi _bookmarksApi;
+
         [UIAction("pageDownPressed")]
         internal async void PageDownPressed()
         {
@@ -313,7 +368,7 @@ namespace BeatSaverDownloader.UI.ViewControllers
         public void SetLoading(bool value, double progress = 0, string details = "")
         {
             if (loadingSpinner == null)
-                loadingSpinner = GameObject.Instantiate(Resources.FindObjectsOfTypeAll<LoadingControl>().First(), loadingModal.transform);
+                loadingSpinner = Instantiate(Resources.FindObjectsOfTypeAll<LoadingControl>().First(), loadingModal.transform);
             Destroy(loadingSpinner.GetComponent<Touchable>());
             if (value)
             {
@@ -331,7 +386,6 @@ namespace BeatSaverDownloader.UI.ViewControllers
             sourceListTableData.data.Clear();
             sourceListTableData.data.Add(new SourceCellInfo(Filters.FilterMode.BeatSaver, "BeatSaver", null, Sprites.BeatSaverIcon));
             sourceListTableData.data.Add(new SourceCellInfo(Filters.FilterMode.ScoreSaber, "ScoreSaber", null, Sprites.ScoreSaberIcon));
-            sourceListTableData.data.Add(new SourceCellInfo(Filters.FilterMode.BeastSaber, "BeastSaber", null, Sprites.BeastSaberLogoSmall));
             sourceListTableData.tableView.ReloadData();
         }
         public void SetupSortOptions()
@@ -340,9 +394,9 @@ namespace BeatSaverDownloader.UI.ViewControllers
             switch (CurrentFilter)
             {
                 case Filters.FilterMode.BeatSaver:
-                    sortListTableData.data.Add(new SortFilterCellInfo(new SortFilter(Filters.FilterMode.BeatSaver, Filters.BeatSaverFilterOptions.Hot), "Hot", "BeatSaver", Sprites.BeatSaverIcon));
                     sortListTableData.data.Add(new SortFilterCellInfo(new SortFilter(Filters.FilterMode.BeatSaver, Filters.BeatSaverFilterOptions.Latest), "Latest", "BeatSaver", Sprites.BeatSaverIcon));
                     sortListTableData.data.Add(new SortFilterCellInfo(new SortFilter(Filters.FilterMode.BeatSaver, Filters.BeatSaverFilterOptions.Rating), "Rating", "BeatSaver", Sprites.BeatSaverIcon));
+                    sortListTableData.data.Add(new SortFilterCellInfo(new SortFilter(Filters.FilterMode.BeatSaver, Filters.BeatSaverFilterOptions.Curated), "Curated", "BeatSaver", Sprites.BeatSaverIcon));
               // Sort By Downloads will return in BeatSaver: Infinity War
               //      sortListTableData.data.Add(new SortFilterCellInfo(new SortFilter(Filters.FilterMode.BeatSaver, Filters.BeatSaverFilterOptions.Downloads), "Downloads", "BeatSaver", Sprites.BeatSaverIcon));
               //      sortListTableData.data.Add(new SortFilterCellInfo(new SortFilter(Filters.FilterMode.BeatSaver, Filters.BeatSaverFilterOptions.Plays), "Plays", "BeatSaver", Sprites.BeatSaverIcon));
@@ -354,9 +408,6 @@ namespace BeatSaverDownloader.UI.ViewControllers
                     sortListTableData.data.Add(new SortFilterCellInfo(new SortFilter(Filters.FilterMode.ScoreSaber, default, Filters.ScoreSaberFilterOptions.Loved), "Loved", "ScoreSaber", Sprites.ScoreSaberIcon));
                     sortListTableData.data.Add(new SortFilterCellInfo(new SortFilter(Filters.FilterMode.ScoreSaber, default, Filters.ScoreSaberFilterOptions.Difficulty), "Difficulty", "ScoreSaber", Sprites.ScoreSaberIcon));
                     sortListTableData.data.Add(new SortFilterCellInfo(new SortFilter(Filters.FilterMode.ScoreSaber, default, Filters.ScoreSaberFilterOptions.Plays), "Plays", "ScoreSaber", Sprites.ScoreSaberIcon));
-                    break;
-                case Filters.FilterMode.BeastSaber:
-                    sortListTableData.data.Add(new SortFilterCellInfo(new SortFilter(Filters.FilterMode.BeastSaber, default, default), "Curator Recommended", "BeastSaber", Sprites.BeastSaberLogoSmall));
                     break;
 
             }
@@ -373,7 +424,7 @@ namespace BeatSaverDownloader.UI.ViewControllers
         {
             if (Working) return;
             _endOfResults = false;
-            Plugin.log.Info($"Fetching {count} new page(s)");
+            Plugin.LOG.Info($"Fetching {count} new page(s)");
             Working = true;
             try
             {
@@ -385,9 +436,6 @@ namespace BeatSaverDownloader.UI.ViewControllers
                     case Filters.FilterMode.ScoreSaber:
                         await GetPagesScoreSaber(count);
                         break;
-                    case Filters.FilterMode.BeastSaber:
-                        await GetPagesBeastSaber(count);
-                        break;
                     case Filters.FilterMode.Search:
                         await GetPagesSearch(count);
                         break;
@@ -397,42 +445,15 @@ namespace BeatSaverDownloader.UI.ViewControllers
             }
             catch (TaskCanceledException e)
             {
-                Plugin.log.Warn("Page Fetching Aborted.");
-                Plugin.log.Critical(e.InnerException ?? e);
+                Plugin.LOG.Warn("Page Fetching Aborted.");
+                Plugin.LOG.Critical(e.InnerException ?? e);
             }
             catch (Exception e)
             {
-                Plugin.log.Critical("Failed to fetch new pages!");
-                Plugin.log.Critical(e.InnerException ?? e);
+                Plugin.LOG.Critical("Failed to fetch new pages!");
+                Plugin.LOG.Critical(e.InnerException ?? e);
             }
             Working = false;
-        }
-
-        private async Task GetPagesBeastSaber(uint count)
-        {
-            var newMaps = new List<BeastSaber.BeastSaberSong>();
-            for (uint i = 0; i < count; ++i)
-            {
-                _fetchingDetails = $"({i}/{count})";
-
-                var page = await BeastSaber.BeastSaberApiHelper.GetPage(_lastPage, 40, _cancellationTokenSource.Token);
-
-                _lastPage++;
-
-                if (page?.songs != null)
-                    newMaps.AddRange(page.songs);
-
-                if (page?.songs?.Any() != true) break;
-            }
-
-            var maps = await Plugin.BeatSaver.BeatmapByHash(newMaps.Select(x => x.hash).ToArray());
-            var newMapsCast = newMaps
-                .Select(x => maps.TryGetValue(x.hash.ToUpperInvariant(), out var fromBeastSaber) ? fromBeastSaber : null)
-                .Where(x => x != null)
-                .ToList();
-
-            AddMapsToView(newMapsCast);
-            _fetchingDetails = "";
         }
 
         private async Task<Songs> FetchFromScoreSaber(Filters.ScoreSaberFilterOptions filter)
@@ -497,10 +518,12 @@ namespace BeatSaverDownloader.UI.ViewControllers
                 case Filters.BeatSaverFilterOptions.Uploader:
                     options.SortOrder = SortingOptions.Latest;
                     break;
+                case Filters.BeatSaverFilterOptions.Curated:
+                    options.SortOrder = SortingOptions.Curated;
+                    break;
                 // Plays and downloads kept for compatibility
                 case Filters.BeatSaverFilterOptions.Plays:
                 case Filters.BeatSaverFilterOptions.Downloads:
-                case Filters.BeatSaverFilterOptions.Hot:
                 default:
                     options.SortOrder = SortingOptions.Relevance;
                     break;
@@ -609,6 +632,11 @@ namespace BeatSaverDownloader.UI.ViewControllers
             if (!shouldRefresh) return;
 
             customListTableData.tableView.RefreshCellsContent();
+        }
+
+        public void AddBookmarksApi(BookmarksApi bookmarksApi)
+        {
+            _bookmarksApi = bookmarksApi;
         }
     }
 }

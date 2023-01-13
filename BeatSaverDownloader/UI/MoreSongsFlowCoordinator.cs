@@ -6,13 +6,16 @@ using System;
 using UnityEngine;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using BeatSaverDownloader.Bookmarks;
+using BeatSaverDownloader.UI.ViewControllers.DownloadQueue;
 
 namespace BeatSaverDownloader.UI
 {
-    public class MoreSongsFlowCoordinator : FlowCoordinator
+    internal class MoreSongsFlowCoordinator : FlowCoordinator
     {
         public FlowCoordinator ParentFlowCoordinator { get; protected set; }
         public bool AllowFlowCoordinatorChange { get; protected set; } = true;
+
         private NavigationController _moreSongsNavigationcontroller;
         private MoreSongsListViewController _moreSongsView;
         private SongDetailViewController _songDetailView;
@@ -43,6 +46,12 @@ namespace BeatSaverDownloader.UI
             }
         }
 
+        public void AddQueueManager(QueueManager queueManager, BookmarksApi bookmarksApi)
+        {
+            _downloadQueueView.AddQueueManager(queueManager);
+            _moreSongsView.AddBookmarksApi(bookmarksApi);
+        }
+
         protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
         {
             try
@@ -62,7 +71,7 @@ namespace BeatSaverDownloader.UI
             }
             catch (Exception ex)
             {
-                Plugin.log.Error(ex);
+                Plugin.LOG.Error(ex);
             }
         }
 
@@ -83,9 +92,6 @@ namespace BeatSaverDownloader.UI
                     break;
                 case Filters.FilterMode.ScoreSaber:
                     SetTitle(localTitle + $" - {_moreSongsView.CurrentScoreSaberFilter.Name()}");
-                    break;
-                case Filters.FilterMode.BeastSaber:
-                    SetTitle(localTitle + $" - {Filters.BeastSaberFilterOptions.CuratorRecommended.Name()}");
                     break;
             }
         }
@@ -113,7 +119,7 @@ namespace BeatSaverDownloader.UI
 
         private void HandleDidPressDownload(BeatSaverSharp.Models.Beatmap song, Sprite cover)
         {
-            Plugin.log.Info("Download pressed for song: " + song.Metadata.SongName);
+            Plugin.LOG.Info("Download pressed for song: " + song.Metadata.SongName);
             //    Misc.SongDownloader.Instance.DownloadSong(song);
             _songDetailView.UpdateDownloadButtonStatus();
             _downloadQueueView.EnqueueSong(song, cover);
@@ -121,7 +127,7 @@ namespace BeatSaverDownloader.UI
 
         private void HandleMultiSelectDownload()
         {
-            _downloadQueueView.EnqueueSongs(_moreSongsView.MultiSelectSongs.ToArray(), _downloadQueueView.CancellationTokenSource.Token);
+            _downloadQueueView.EnqueueSongs(_moreSongsView.MultiSelectSongs.ToArray());
             _moreSongsView.MultiSelectClear();
         }
 
@@ -145,7 +151,7 @@ namespace BeatSaverDownloader.UI
 
         private void HandleDidPressUploader(BeatSaverSharp.Models.User uploader)
         {
-            Plugin.log.Info("Uploader pressed for user: " + uploader.Name);
+            Plugin.LOG.Info("Uploader pressed for user: " + uploader.Name);
             _moreSongsView.SortByUser(uploader);
         }
 

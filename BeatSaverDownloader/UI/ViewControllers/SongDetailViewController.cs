@@ -117,7 +117,7 @@ namespace BeatSaverDownloader.UI.ViewControllers
             _downText.text = "--";
             _songNameText.text = "--";
             _songSubText.text = "--";
-            _coverImage.sprite = Misc.Sprites.LoadSpriteFromTexture(Texture2D.blackTexture);
+            _coverImage.sprite = Sprites.LoadSpriteFromTexture(Texture2D.blackTexture);
             _diffSegmentedControl.SetTexts(new string[] { });
             _characteristicSegmentedControl.SetData(new IconSegmentedControl.DataItem[] { });
             DownloadInteractable = false;

@@ -2,7 +2,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 using BeatSaberMarkupLanguage.Components;
-using BeatSaverDownloader.BeastSaber;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -34,7 +33,7 @@ namespace BeatSaverDownloader.UI.ViewControllers.MoreSongsList
 
         private static async Task<bool> Download(UnityWebRequest www)
         {
-            www.SetRequestHeader("User-Agent", BeastSaberApiHelper.UserAgent);
+            www.SetRequestHeader("User-Agent", Plugin.UserAgent);
 
             var req = www.SendWebRequest();
             var startThread = SynchronizationContext.Current;

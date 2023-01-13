@@ -2,8 +2,13 @@
 using BeatSaverDownloader.UI;
 using IPA;
 using System;
-using UnityEngine.SceneManagement;
 using System.Collections.Concurrent;
+using BeatSaverDownloader.Bookmarks;
+using BeatSaverDownloader.UI.ViewControllers.DownloadQueue;
+using BeatSaverSharp.Http;
+using BS_Utils.Utilities;
+using IPA.Loader;
+using IPA.Utilities;
 
 namespace BeatSaverDownloader
 {
@@ -12,16 +17,20 @@ namespace BeatSaverDownloader
     [Plugin(RuntimeOptions.SingleStartInit)]
     public class Plugin
     {
-        private IPA.Loader.PluginMetadata _metadata;
-        public static IPA.Logging.Logger log;
+        private PluginMetadata _metadata;
+        public static IPA.Logging.Logger LOG;
         public static BeatSaverSharp.BeatSaver BeatSaver;
+        internal CallbackListener Listener;
+        internal BookmarksApi BookmarksApi;
+        internal QueueManager QueueManager;
+        public static string UserAgent = "";
 
         [Init]
-        public void Init(object nullObject, IPA.Logging.Logger logger, IPA.Loader.PluginMetadata metadata)
+        public void Init(object nullObject, IPA.Logging.Logger logger, PluginMetadata metadata)
         {
+            UserAgent = $"BeatSaverDownloader/{metadata.HVersion}";
             _metadata = metadata;
-            log = logger;
-            BeastSaber.BeastSaberApiHelper.InitializeBeastSaberHttpClient(metadata);
+            LOG = logger;
         }
 
         public void OnApplicationQuit()
@@ -42,11 +51,46 @@ namespace BeatSaverDownloader
             PluginConfig.LoadConfig();
             Sprites.ConvertToSprites();
 
-            PluginUI.instance.Setup();
+            if (OauthConfig.Current.AppAuth != null)
+            {
+                var httpService = (UnityWebRequestService) BeatSaver.GetField<IHttpService, BeatSaverSharp.BeatSaver>("_httpService");
+                httpService.Headers.Add("X-App-Auth", OauthConfig.Current.AppAuth);
+            }
 
-            BS_Utils.Utilities.BSEvents.earlyMenuSceneLoadedFresh += OnMenuSceneLoadedFresh;
-            SceneManager.activeSceneChanged += OnActiveSceneChanged;
-            SceneManager.sceneLoaded += OnSceneLoaded;
+            var tokenApi = new TokenApi(_metadata);
+            Listener = new CallbackListener(tokenApi);
+            QueueManager = new QueueManager();
+            BookmarksApi = new BookmarksApi(tokenApi, QueueManager);
+
+            PluginUI.instance.Setup(BookmarksApi, QueueManager);
+
+            if (PluginManager.GetPlugin("BetterSongList") != null)
+                RegisterBookmarksFilter();
+
+            BSEvents.earlyMenuSceneLoadedFresh += OnMenuSceneLoadedFresh;
+        }
+
+        private void RegisterBookmarksFilter()
+        {
+            var _ = new BookmarksFilter(BookmarksApi);
+        }
+
+        [OnEnable]
+        public void OnEnable()
+        {
+            Listener.Start();
+        }
+
+        [OnDisable]
+        public void OnDisable()
+        {
+            Listener.Stop();
+        }
+
+        [OnExit]
+        public void OnExit()
+        {
+            BookmarksApi.Store();
         }
 
         private void OnMenuSceneLoadedFresh(ScenesTransitionSetupDataSO data)
@@ -59,34 +103,27 @@ namespace BeatSaverDownloader
             }
             catch (Exception e)
             {
-                log.Critical("Exception on fresh menu scene change: " + e);
+                LOG.Critical("Exception on fresh menu scene change: " + e);
             }
         }
 
-        private void Loader_SongsLoadedEvent(SongCore.Loader arg1, ConcurrentDictionary<string, CustomPreviewBeatmapLevel> arg2)
+        private async void Loader_SongsLoadedEvent(SongCore.Loader arg1, ConcurrentDictionary<string, CustomPreviewBeatmapLevel> arg2)
         {
-            if (!PluginUI.instance.MoreSongsButton.Interactable)
-                PluginUI.instance.MoreSongsButton.Interactable = true;
-        }
+            if (PluginUI.instance.MoreSongsButton.Interactable) return;
 
-        public void OnUpdate()
-        {
-        }
+            PluginUI.instance.MoreSongsButton.Interactable = true;
 
-        public void OnSceneLoaded(Scene scene, LoadSceneMode sceneMode)
-        {
-        }
-
-        public void OnSceneUnloaded(Scene scene)
-        {
-        }
-
-        public void OnActiveSceneChanged(Scene prevScene, Scene nextScene)
-        {
-        }
-
-        public void OnFixedUpdate()
-        {
+            if (PluginConfig.UserTokens?.CouldBeValid == true && PluginConfig.SyncOnLoad)
+            {
+                try
+                {
+                    await BookmarksApi.Sync(false);
+                }
+                catch (TokenApi.InvalidOauthCredentialsException e)
+                {
+                    // Do nothing
+                }
+            }
         }
     }
 }

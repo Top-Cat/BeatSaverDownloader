@@ -23,7 +23,8 @@ namespace BeatSaverDownloader.Bookmarks
     internal class BookmarksApi
     {
         private static readonly string BookmarkedSongsPath = $"{UnityGame.UserDataPath}/bookmarkedSongs.json";
-        
+
+        private const int PageSize = 100;
         private readonly HttpClient _bookmarksClient;
         private readonly TokenApi _tokenApi;
         private HashSet<string> _bookmarkHashes = new HashSet<string>();
@@ -95,7 +96,8 @@ namespace BeatSaverDownloader.Bookmarks
             var hash = SongCore.Utilities.Hashing.GetCustomLevelHash(customLevel);
             return IsBookmarked(hash);
         }
-        public bool IsBookmarked(string hash) => _bookmarkHashes?.Contains(hash.ToUpper()) == true;
+
+        private bool IsBookmarked(string hash) => _bookmarkHashes?.Contains(hash.ToUpper()) == true;
 
         private async Task<List<Beatmap>> GetBookmarks(bool interactive, Func<Task> cb)
         {
@@ -106,9 +108,9 @@ namespace BeatSaverDownloader.Bookmarks
             do
             {
                 page = await (page?.Next() ?? GetBookmarksPage(interactive, cb));
-                morePages = page != null && !page.Empty;
+                morePages = page != null && page.Beatmaps.Count >= PageSize;
 
-                if (morePages)
+                if (page != null)
                 {
                     foreach (var pageBeatmap in page.Beatmaps)
                     {
@@ -128,7 +130,7 @@ namespace BeatSaverDownloader.Bookmarks
             var req = new HttpRequestMessage
             {
                 Method = HttpMethod.Get,
-                RequestUri = new Uri($"bookmarks/{page}", UriKind.Relative)
+                RequestUri = new Uri($"bookmarks/{page}?pagesize={PageSize}", UriKind.Relative)
             };
 
             return await MakeRequest<Page>(req, cb, () => GetBookmarksPage(interactive, cb, page, token), async response =>

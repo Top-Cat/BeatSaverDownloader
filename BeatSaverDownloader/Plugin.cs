@@ -20,9 +20,9 @@ namespace BeatSaverDownloader
         private PluginMetadata _metadata;
         public static IPA.Logging.Logger LOG;
         public static BeatSaverSharp.BeatSaver BeatSaver;
-        internal CallbackListener Listener;
-        internal BookmarksApi BookmarksApi;
-        internal QueueManager QueueManager;
+        private CallbackListener _listener;
+        private BookmarksApi _bookmarksApi;
+        private QueueManager _queueManager;
         public static string UserAgent = "";
 
         [Init]
@@ -58,11 +58,11 @@ namespace BeatSaverDownloader
             }
 
             var tokenApi = new TokenApi(_metadata);
-            Listener = new CallbackListener(tokenApi);
-            QueueManager = new QueueManager();
-            BookmarksApi = new BookmarksApi(tokenApi, QueueManager);
+            _listener = new CallbackListener(tokenApi);
+            _queueManager = new QueueManager();
+            _bookmarksApi = new BookmarksApi(tokenApi, _queueManager);
 
-            PluginUI.instance.Setup(BookmarksApi, QueueManager);
+            PluginUI.instance.Setup(_bookmarksApi, _queueManager);
 
             if (PluginManager.GetPlugin("BetterSongList") != null)
                 RegisterBookmarksFilter();
@@ -72,25 +72,25 @@ namespace BeatSaverDownloader
 
         private void RegisterBookmarksFilter()
         {
-            var _ = new BookmarksFilter(BookmarksApi);
+            var _ = new BookmarksFilter(_bookmarksApi);
         }
 
         [OnEnable]
         public void OnEnable()
         {
-            Listener.Start();
+            _listener.Start();
         }
 
         [OnDisable]
         public void OnDisable()
         {
-            Listener.Stop();
+            _listener.Stop();
         }
 
         [OnExit]
         public void OnExit()
         {
-            BookmarksApi.Store();
+            _bookmarksApi.Store();
         }
 
         private void OnMenuSceneLoadedFresh(ScenesTransitionSetupDataSO data)
@@ -117,7 +117,7 @@ namespace BeatSaverDownloader
             {
                 try
                 {
-                    await BookmarksApi.Sync(false);
+                    await _bookmarksApi.Sync(false);
                 }
                 catch (TokenApi.InvalidOauthCredentialsException e)
                 {

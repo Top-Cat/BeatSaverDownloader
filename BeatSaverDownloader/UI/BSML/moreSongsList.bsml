@@ -16,11 +16,11 @@
   </modal>
   <vertical id="interactableGroup">
     <horizontal horizontal-fit="PreferredSize" vertical-fit="PreferredSize" spacing="2" anchor-min-x="0" anchor-max-x="0.5">
-      <button  id="multiSelectButton" pad="0" pref-height="8" pref-width="15" text="M-S" on-click="multiSelectToggle"></button>
+      <button  id="multiSelectButton" pad="0" pref-height="8" pref-width="12" text="M-S" on-click="multiSelectToggle"></button>
       <button  id="searchButton" pad="0" pref-height="8" pref-width="20" text="Search" on-click="searchOpened" click-event="open-searchKeyboard" ></button>
       <button id="sortButton" pad="0" pref-height="8" pref-width="20" click-event="open-sourceModal" on-click="sortPressed" text="Sort"></button>
 
-      <icon-button id="syncButton" pad="2" pref-height="10" pref-width="20" on-click="syncPressed" icon="BeatSaverDownloader.Assets.SyncBookmarks.png" interactable="~syncEnabled" hover-hint="Sync Bookmarks"></icon-button>
+      <icon-button id="syncButton" pad="2" pref-height="10" pref-width="10" on-click="syncPressed" icon="BeatSaverDownloader.Assets.SyncBookmarks.png" interactable="~syncEnabled" hover-hint="Sync Bookmarks"></icon-button>
     </horizontal>
     <modal id="loadingModal" show-event="open-loadingModal" hide-event="close-loadingModal,closeAllModals" move-to-center="true" size-delta-y="35" size-delta-x="48">
       <button id="abortButton" on-click="abortClicked" text="Abort" ignore-layout="true" anchor-min-x="0.5" anchor-max-x="0.5" anchor-pos-y="-30" anchor-pos-x="0" pref-height="8" pref-width="35" pad="0" ></button>

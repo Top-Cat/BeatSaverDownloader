@@ -37,7 +37,7 @@ namespace BeatSaverDownloader.Bookmarks
                         {
                             var plainTextBytes = new byte[enc.Length];
                             var _ = cryptoStream.Read(plainTextBytes, 0, plainTextBytes.Length);
-                            return Encoding.UTF8.GetString(plainTextBytes);
+                            return Encoding.UTF8.GetString(plainTextBytes).Trim('\0');
                         }
                     }
                 }

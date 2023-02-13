@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.MenuButtons;
 using HMUI;
@@ -20,6 +21,7 @@ namespace BeatSaverDownloader.UI
         public static GameObject LevelDetailClone;
         private static BookmarksApi _bookmarksApi;
         private static QueueManager _queueManager;
+        private static Action<LevelCollectionViewController,IPreviewBeatmapLevel> _handler;
 
         internal void Setup(BookmarksApi bookmarksApi, QueueManager queueManager)
         {
@@ -54,7 +56,12 @@ namespace BeatSaverDownloader.UI
             bookmarkButton.graphic = checkmark;
 
             bookmarkButton.onValueChanged.AddListener(toggle => BookmarkButtonPressed(bookmarkButton, toggle));
-            BSEvents.levelSelected += (controller, level) => LevelSelected(bookmarkButton, level);
+
+            if (_handler != null)
+                BSEvents.levelSelected -= _handler;
+
+            _handler = (controller, level) => LevelSelected(bookmarkButton, level);
+            BSEvents.levelSelected += _handler;
         }
 
         internal static void SetupLevelDetailClone()

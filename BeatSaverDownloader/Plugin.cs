@@ -3,6 +3,7 @@ using BeatSaverDownloader.UI;
 using IPA;
 using System;
 using System.Collections.Concurrent;
+using BeatSaberMarkupLanguage.MenuButtons;
 using BeatSaverDownloader.Bookmarks;
 using BeatSaverDownloader.UI.ViewControllers.DownloadQueue;
 using BeatSaverSharp.Http;
@@ -112,6 +113,7 @@ namespace BeatSaverDownloader
             if (PluginUI.instance.MoreSongsButton.Interactable) return;
 
             PluginUI.instance.MoreSongsButton.Interactable = true;
+            MenuButtons.instance.InvokeMethod<object, MenuButtons>("Refresh");
 
             if (PluginConfig.UserTokens?.CouldBeValid == true && PluginConfig.SyncOnLoad)
             {
@@ -119,7 +121,7 @@ namespace BeatSaverDownloader
                 {
                     await _bookmarksApi.Sync(false);
                 }
-                catch (TokenApi.InvalidOauthCredentialsException e)
+                catch (TokenApi.InvalidOauthCredentialsException)
                 {
                     // Do nothing
                 }

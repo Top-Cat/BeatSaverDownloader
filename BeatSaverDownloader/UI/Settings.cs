@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using BeatSaberMarkupLanguage.Attributes;
-using BeatSaberMarkupLanguage.Components;
 using BeatSaberMarkupLanguage.Settings;
+using BeatSaberMarkupLanguage.Util;
 using BeatSaverDownloader.Bookmarks;
 using BeatSaverDownloader.Misc;
 

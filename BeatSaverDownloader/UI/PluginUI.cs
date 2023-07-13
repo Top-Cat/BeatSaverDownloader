@@ -4,6 +4,7 @@ using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.MenuButtons;
 using HMUI;
 using System.Linq;
+using BeatSaberMarkupLanguage.Util;
 using BeatSaverDownloader.Bookmarks;
 using BeatSaverDownloader.Misc;
 using BeatSaverDownloader.UI.ViewControllers.DownloadQueue;
@@ -41,7 +42,7 @@ namespace BeatSaverDownloader.UI
 
             favTransform.sizeDelta = new Vector2(12, 14);
 
-            var bookmarkButton = Instantiate(favouriteButton, favTransform.parent);
+            var bookmarkButton = UnityEngine.Object.Instantiate(favouriteButton, favTransform.parent);
             bookmarkButton.name = "BookmarkToggle";
             bookmarkButton.transform.localPosition = new Vector3(26, -2, 0);
             var graphics = bookmarkButton.GetComponentsInChildren<ImageView>();
@@ -72,21 +73,21 @@ namespace BeatSaverDownloader.UI
 
             SongPreviewPlayer.StartCoroutine(FixFavouriteButton(levelDetail));
 
-            LevelDetailClone = Instantiate(levelDetail.gameObject);
+            LevelDetailClone = UnityEngine.Object.Instantiate(levelDetail.gameObject);
             LevelDetailClone.gameObject.SetActive(false);
 
-            Destroy(LevelDetailClone.GetComponent<StandardLevelDetailView>());
+            UnityEngine.Object.Destroy(LevelDetailClone.GetComponent<StandardLevelDetailView>());
             var bsmlObjects = LevelDetailClone.GetComponentsInChildren<RectTransform>().Where(x => x.gameObject.name.StartsWith("BSML"));
             var hoverhints = LevelDetailClone.GetComponentsInChildren<HoverHint>();
             var localHoverHints = LevelDetailClone.GetComponentsInChildren<LocalizedHoverHint>();
             foreach (var bsmlObject in bsmlObjects)
-                Destroy(bsmlObject.gameObject);
+                UnityEngine.Object.Destroy(bsmlObject.gameObject);
             foreach (var hoverhint in hoverhints)
-                Destroy(hoverhint);
+                UnityEngine.Object.Destroy(hoverhint);
             foreach (var hoverhint in localHoverHints)
-                Destroy(hoverhint);
-            Destroy(LevelDetailClone.transform.Find("FavoriteToggle").gameObject);
-            Destroy(LevelDetailClone.transform.Find("ActionButtons").gameObject);
+                UnityEngine.Object.Destroy(hoverhint);
+            UnityEngine.Object.Destroy(LevelDetailClone.transform.Find("FavoriteToggle").gameObject);
+            UnityEngine.Object.Destroy(LevelDetailClone.transform.Find("ActionButtons").gameObject);
         }
 
         private static string _selectedHash;

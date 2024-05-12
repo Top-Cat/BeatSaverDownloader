@@ -23,7 +23,7 @@ namespace BeatSaverDownloader.UI.ViewControllers.SongDetail
             segmentedControl.SetField("_middleCellPrefab", segments.Last(x => x.name == "MiddleHorizontalTextSegmentedControlCell"));
             segmentedControl.SetField("_lastCellPrefab", segments.Last(x => x.name == "RightHorizontalTextSegmentedControlCell"));
 
-            segmentedControl.SetField("_container", Resources.FindObjectsOfTypeAll<TextSegmentedControl>().Select(x => x.GetField<DiContainer, TextSegmentedControl>("_container")).First(x => x != null));
+            segmentedControl.SetField<SegmentedControl, DiContainer>("_container", Resources.FindObjectsOfTypeAll<TextSegmentedControl>().Select(x => x.GetField<DiContainer, SegmentedControl>("_container")).First(x => x != null));
 
             segmentedControl.transform.SetParent(parent, false);
             if (segmentedControl.transform is RectTransform rt)
@@ -55,7 +55,7 @@ namespace BeatSaverDownloader.UI.ViewControllers.SongDetail
             segmentedControl.SetField("_middleCellPrefab", segments.First(x => x.name == "MiddleHorizontalIconSegmentedControlCell"));
             segmentedControl.SetField("_lastCellPrefab", segments.First(x => x.name == "RightHorizontalIconSegmentedControlCell"));
 
-            segmentedControl.SetField("_container", Resources.FindObjectsOfTypeAll<IconSegmentedControl>().Select(x => x.GetField<DiContainer, IconSegmentedControl>("_container")).First(x => x != null));
+            segmentedControl.SetField<SegmentedControl, DiContainer>("_container", Resources.FindObjectsOfTypeAll<IconSegmentedControl>().Select(x => x.GetField<DiContainer, SegmentedControl>("_container")).First(x => x != null));
 
             segmentedControl.transform.SetParent(parent, false);
             if (segmentedControl.transform is RectTransform rt)

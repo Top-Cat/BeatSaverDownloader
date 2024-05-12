@@ -108,7 +108,7 @@ namespace BeatSaverDownloader
             }
         }
 
-        private async void Loader_SongsLoadedEvent(SongCore.Loader arg1, ConcurrentDictionary<string, CustomPreviewBeatmapLevel> arg2)
+        private async void Loader_SongsLoadedEvent(SongCore.Loader arg1, ConcurrentDictionary<string, BeatmapLevel> arg2)
         {
             if (PluginUI.instance.MoreSongsButton.Interactable) return;
 

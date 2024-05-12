@@ -18,12 +18,10 @@ namespace BeatSaverDownloader.Misc
                 tableView.SelectCellWithIdx(rows.First(), callbackTable);
         }
 
-        public static SongCoreCustomBeatmapLevelPack GetLevelPackWithLevels(IEnumerable<CustomPreviewBeatmapLevel> levels, string packName = null, Sprite packCover = null, string packID = null)
+        public static SongCoreCustomBeatmapLevelPack GetLevelPackWithLevels(IEnumerable<BeatmapLevel> levels, string packName = null, Sprite packCover = null, string packID = null)
         {
-            var levelCollection = new SongCoreCustomLevelCollection(levels.ToArray());
-
             var pack = new SongCoreCustomBeatmapLevelPack(string.IsNullOrEmpty(packID) ? "" : packID,
-                string.IsNullOrEmpty(packName) ? "Custom Songs" : packName, packCover ? packCover : Sprites.BeastSaberLogo, levelCollection);
+                string.IsNullOrEmpty(packName) ? "Custom Songs" : packName, packCover ? packCover : Sprites.BeastSaberLogo, levels.ToArray());
             return pack;
         }
 

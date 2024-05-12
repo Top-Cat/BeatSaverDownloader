@@ -27,11 +27,10 @@ namespace BeatSaverDownloader.Bookmarks
         bool ISorter.isReady => false;
         bool IFilter.isReady => true;
 
-        public bool GetValueFor(IPreviewBeatmapLevel level) => _bookmarksApi.IsBookmarked(level);
+        public bool GetValueFor(BeatmapLevel level) => _bookmarksApi.IsBookmarked(level);
 
-        public void ContextSwitch(SelectLevelCategoryViewController.LevelCategory levelCategory, IAnnotatedBeatmapLevelCollection playlist)
+        public void ContextSwitch(SelectLevelCategoryViewController.LevelCategory levelCategory, BeatmapLevelPack playlist)
         {
-            Plugin.LOG.Info("Context switch");
             // Do nothing
         }
     }

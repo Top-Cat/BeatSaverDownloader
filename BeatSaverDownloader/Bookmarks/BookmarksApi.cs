@@ -89,9 +89,9 @@ namespace BeatSaverDownloader.Bookmarks
             }
         }
 
-        public bool IsBookmarked(IPreviewBeatmapLevel level)
+        public bool IsBookmarked(BeatmapLevel customLevel)
         {
-            if (!(level is CustomPreviewBeatmapLevel customLevel)) return false;
+            if (!customLevel.levelID.StartsWith("custom_level_")) return false;
 
             var hash = SongCore.Utilities.Hashing.GetCustomLevelHash(customLevel);
             return IsBookmarked(hash);
@@ -220,9 +220,9 @@ namespace BeatSaverDownloader.Bookmarks
                 _cb = cb;
             }
 
-            public override Task<Page> Previous(CancellationToken token = new CancellationToken()) => _pageNumber == 0 ? null : _api.GetBookmarksPage(_interactive, _cb, _pageNumber - 1, token);
+            public override Task<Page> Previous(CancellationToken token = default) => _pageNumber == 0 ? null : _api.GetBookmarksPage(_interactive, _cb, _pageNumber - 1, token);
 
-            public override Task<Page> Next(CancellationToken token = new CancellationToken()) => _api.GetBookmarksPage(_interactive, _cb, _pageNumber + 1, token);
+            public override Task<Page> Next(CancellationToken token = default) => _api.GetBookmarksPage(_interactive, _cb, _pageNumber + 1, token);
         }
 
         internal class BookmarkResponse

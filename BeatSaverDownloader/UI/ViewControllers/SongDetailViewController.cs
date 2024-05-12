@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using BeatSaverDownloader.Misc;
 using BeatSaverDownloader.UI.ViewControllers.SongDetail;
 using BeatSaverSharp.Models;
+using BGLib.Polyglot;
 using IPA.Utilities;
 using TMPro;
 using UnityEngine;
@@ -274,7 +275,7 @@ namespace BeatSaverDownloader.UI.ViewControllers
                         characteristic.icon,
                         characteristic.characteristicNameLocalizationKey == "Missing Characteristic"
                             ? $"Missing Characteristic: {c}"
-                            : Polyglot.Localization.Get(characteristic.descriptionLocalizationKey)
+                            : Localization.Get(characteristic.descriptionLocalizationKey)
                     )
                 );
             }

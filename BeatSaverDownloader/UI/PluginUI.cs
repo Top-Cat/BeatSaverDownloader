@@ -9,8 +9,10 @@ using BeatSaverDownloader.Bookmarks;
 using BeatSaverDownloader.Misc;
 using BeatSaverDownloader.UI.ViewControllers.DownloadQueue;
 using BS_Utils.Utilities;
+using IPA.Utilities;
 using UnityEngine;
 using UnityEngine.UI;
+using Zenject;
 
 namespace BeatSaverDownloader.UI
 {
@@ -22,7 +24,7 @@ namespace BeatSaverDownloader.UI
         public static GameObject LevelDetailClone;
         private static BookmarksApi _bookmarksApi;
         private static QueueManager _queueManager;
-        private static Action<LevelCollectionViewController,IPreviewBeatmapLevel> _handler;
+        private static Action<LevelCollectionViewController,BeatmapLevel> _handler;
 
         internal void Setup(BookmarksApi bookmarksApi, QueueManager queueManager)
         {
@@ -67,16 +69,25 @@ namespace BeatSaverDownloader.UI
 
         internal static void SetupLevelDetailClone()
         {
-            SongPreviewPlayer = Resources.FindObjectsOfTypeAll<SongPreviewPlayer>().First();
-
             var levelDetail = Resources.FindObjectsOfTypeAll<StandardLevelDetailView>().First(x => x.gameObject.name == "LevelDetail");
 
+            // Setup extra buttons
+            SongPreviewPlayer = Resources.FindObjectsOfTypeAll<SongPreviewPlayer>().First();
             SongPreviewPlayer.StartCoroutine(FixFavouriteButton(levelDetail));
 
+            // Get DI Container
+            var bdscc = levelDetail.GetField<BeatmapDifficultySegmentedControlController, StandardLevelDetailView>("_beatmapDifficultySegmentedControlController");
+            var tsc = bdscc.GetField<TextSegmentedControl, BeatmapDifficultySegmentedControlController>("_difficultySegmentedControl");
+            var di = tsc.GetField<DiContainer, SegmentedControl>("_container");
+
+            // Clone Level Detail View for use in song download screen
             LevelDetailClone = UnityEngine.Object.Instantiate(levelDetail.gameObject);
+            var clonedLdv = LevelDetailClone.GetComponent<StandardLevelDetailView>();
+            di.Inject(clonedLdv);
             LevelDetailClone.gameObject.SetActive(false);
 
-            UnityEngine.Object.Destroy(LevelDetailClone.GetComponent<StandardLevelDetailView>());
+            // Remove UI we don't want
+            UnityEngine.Object.Destroy(clonedLdv);
             var bsmlObjects = LevelDetailClone.GetComponentsInChildren<RectTransform>().Where(x => x.gameObject.name.StartsWith("BSML"));
             var hoverhints = LevelDetailClone.GetComponentsInChildren<HoverHint>();
             var localHoverHints = LevelDetailClone.GetComponentsInChildren<LocalizedHoverHint>();
@@ -111,14 +122,14 @@ namespace BeatSaverDownloader.UI
             bookmarkButton.interactable = true;
         }
 
-        private static void LevelSelected(Toggle bookmarkButton, IPreviewBeatmapLevel level)
+        private static void LevelSelected(Toggle bookmarkButton, BeatmapLevel level)
         {
             bookmarkButton.interactable = true;
-            bookmarkButton.gameObject.SetActive(level is CustomPreviewBeatmapLevel && PluginConfig.UserTokens?.CouldBeValid == true);
+            bookmarkButton.gameObject.SetActive(level.levelID.StartsWith("custom_level_") && PluginConfig.UserTokens?.CouldBeValid == true);
 
             if (bookmarkButton.gameObject.activeSelf)
             {
-                _selectedHash = SongCore.Utilities.Hashing.GetCustomLevelHash((CustomPreviewBeatmapLevel) level);
+                _selectedHash = SongCore.Utilities.Hashing.GetCustomLevelHash(level);
             }
 
             bookmarkButton.SetIsOnWithoutNotify(_bookmarksApi.IsBookmarked(level));

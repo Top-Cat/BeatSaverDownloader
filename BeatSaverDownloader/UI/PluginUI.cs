@@ -32,7 +32,6 @@ namespace BeatSaverDownloader.UI
             _queueManager = queueManager;
 
             MoreSongsButton = new MenuButton("More Songs", "Download More Songs from here!", MoreSongsButtonPressed, false);
-            MenuButtons.instance.RegisterButton(MoreSongsButton);
         }
 
         private static IEnumerator FixFavouriteButton(StandardLevelDetailView levelDetail)

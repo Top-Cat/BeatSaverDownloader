@@ -99,7 +99,7 @@ namespace BeatSaverDownloader.UI.ViewControllers
             MultiSelectClear();
             if (value)
             {
-                customListTableData.tableView.selectionType = TableViewSelectionType.Multiple;
+                customListTableData.TableView.selectionType = TableViewSelectionType.Multiple;
                 _sortButton.interactable = false;
                 _searchButton.interactable = false;
             }
@@ -107,13 +107,13 @@ namespace BeatSaverDownloader.UI.ViewControllers
             {
                 _sortButton.interactable = true;
                 _searchButton.interactable = true;
-                customListTableData.tableView.selectionType = TableViewSelectionType.Single;
+                customListTableData.TableView.selectionType = TableViewSelectionType.Single;
             }
 
         }
         internal void MultiSelectClear()
         {
-            customListTableData.tableView.ClearSelection();
+            customListTableData.TableView.ClearSelection();
             MultiSelectSongs.Clear();
         }
 
@@ -122,15 +122,15 @@ namespace BeatSaverDownloader.UI.ViewControllers
         {
             if (MultiSelectEnabled)
                 if (MultiSelectSongs.All(x => x.Item1.LatestVersion.Hash != _songs[row].Value.LatestVersion.Hash))
-                    MultiSelectSongs.Add(new Tuple<Beatmap, Sprite>(_songs[row].Value, customListTableData.data[row].icon));
+                    MultiSelectSongs.Add(new Tuple<Beatmap, Sprite>(_songs[row].Value, customListTableData.Data[row].Icon));
 
             Task<AudioClip> preview = null;
-            if (customListTableData.data[row] is BeatSaverCustomSongCellInfo bsCellInfo)
+            if (customListTableData.Data[row] is BeatSaverCustomSongCellInfo bsCellInfo)
             {
                 preview = bsCellInfo.LoadPreview();
             }
 
-            DidSelectSong?.Invoke(_songs[row], customListTableData.data[row].icon, preview);
+            DidSelectSong?.Invoke(_songs[row], customListTableData.Data[row].Icon, preview);
         }
 
         private void SortClosed()
@@ -141,8 +141,8 @@ namespace BeatSaverDownloader.UI.ViewControllers
         [UIAction("sortPressed")]
         internal void SortPressed()
         {
-            sourceListTableData.tableView.ClearSelection();
-            sortListTableData.tableView.ClearSelection();
+            sourceListTableData.TableView.ClearSelection();
+            sortListTableData.TableView.ClearSelection();
         }
 
         [UIValue("syncEnabled")]
@@ -201,7 +201,7 @@ namespace BeatSaverDownloader.UI.ViewControllers
         [UIAction("sortSelect")]
         internal async void SelectedSortOption(TableView tableView, int row)
         {
-            if (!(sortListTableData.data[row] is SortFilterCellInfo sfci)) return;
+            if (!(sortListTableData.Data[row] is SortFilterCellInfo sfci)) return;
             
             var filter = sfci.SortFilter;
             CurrentFilter = filter.Mode;
@@ -217,7 +217,7 @@ namespace BeatSaverDownloader.UI.ViewControllers
         [UIAction("sourceSelect")]
         internal void SelectedSource(TableView tableView, int row)
         {
-            if (!(sourceListTableData.data[row] is SourceCellInfo sci)) return;
+            if (!(sourceListTableData.Data[row] is SourceCellInfo sci)) return;
 
             _parserParams.EmitEvent("close-sourceModal");
             var filter = sci.Filter;
@@ -231,7 +231,7 @@ namespace BeatSaverDownloader.UI.ViewControllers
         internal void SearchOpened()
         {
             _interactableGroup.gameObject.SetActive(false);
-            customListTableData.tableView.ClearSelection();
+            customListTableData.TableView.ClearSelection();
             FilterDidChange?.Invoke();
         }
 
@@ -289,8 +289,8 @@ namespace BeatSaverDownloader.UI.ViewControllers
         [UIAction("pageDownPressed")]
         internal async void PageDownPressed()
         {
-            if (!(customListTableData.data.Count >= 1) || _endOfResults || _multiSelectEnabled) return;
-            if (customListTableData.data.Count - customListTableData.tableView.visibleCells.Last().idx <= 7)
+            if (!(customListTableData.Data.Count >= 1) || _endOfResults || _multiSelectEnabled) return;
+            if (customListTableData.Data.Count - customListTableData.TableView.visibleCells.Last().idx <= 7)
             {
                 await GetNewPage(4);
             }
@@ -299,10 +299,10 @@ namespace BeatSaverDownloader.UI.ViewControllers
         private void ClearData()
         {
             _lastPage = 0;
-            customListTableData.tableView.ClearSelection();
-            customListTableData.data.Clear();
-            customListTableData.tableView.ReloadData();
-            customListTableData.tableView.ScrollToCellWithIdx(0, TableView.ScrollPositionType.Beginning, false);
+            customListTableData.TableView.ClearSelection();
+            customListTableData.Data.Clear();
+            customListTableData.TableView.ReloadData();
+            customListTableData.TableView.ScrollToCellWithIdx(0, TableView.ScrollPositionType.Beginning, false);
             _songs.Clear();
             MultiSelectSongs.Clear();
         }
@@ -335,24 +335,27 @@ namespace BeatSaverDownloader.UI.ViewControllers
             _fetchProgress = new Progress<double>(ProgressUpdate);
             SetupSourceOptions();
             sortModal.blockerClickedEvent += SortClosed;
-            var keyKey = new KEYBOARD.KEY(_searchKeyboard.keyboard, new Vector2(-35, 11f), "Key:", 15, 10, new Color(0.92f, 0.64f, 0));
-            var includeAIKey = new KEYBOARD.KEY(_searchKeyboard.keyboard, new Vector2(-27f, 11f), "Include Auto Generated", 45, 10, new Color(0.984f, 0.282f, 0.305f));
-            keyKey.keyaction += KeyKeyPressed;
-            includeAIKey.keyaction += IncludeAIKeyPressed;
-            _searchKeyboard.keyboard.keys.Add(keyKey);
-            _searchKeyboard.keyboard.keys.Add(includeAIKey);
+            var keyKey = new KEYBOARD.KEY(_searchKeyboard.Keyboard, new Vector2(-35, 11f), "Key:", 15, 10, new Color(0.92f, 0.64f, 0));
+            var includeAIKey = new KEYBOARD.KEY(_searchKeyboard.Keyboard, new Vector2(-27f, 11f), "Include Auto Generated", 45, 10, new Color(0.984f, 0.282f, 0.305f));
+            keyKey.KeyAction += KeyKeyPressed;
+            includeAIKey.KeyAction += IncludeAIKeyPressed;
+            _searchKeyboard.Keyboard.Keys.Add(keyKey);
+            _searchKeyboard.Keyboard.Keys.Add(includeAIKey);
             InitSongList();
         }
 
         private void IncludeAIKeyPressed(KEYBOARD.KEY key)
         {
             AllowAIGeneratedMaps = !AllowAIGeneratedMaps;
-            key.mybutton.GetComponentInChildren<Image>().color = AllowAIGeneratedMaps ? new Color(0.341f, 0.839f, 0.341f) : new Color(0.984f, 0.282f, 0.305f);
+            var color = AllowAIGeneratedMaps ? new Color(0.341f, 0.839f, 0.341f) : new Color(0.984f, 0.282f, 0.305f);
+            key.GetField<TMP_Text, KEYBOARD.KEY>("buttonText")
+               .transform.parent
+               .GetComponentInChildren<Image>().color = color;
         }
 
         private void KeyKeyPressed(KEYBOARD.KEY key)
         {
-            _searchKeyboard.keyboard.KeyboardText.text = "Key:";
+            _searchKeyboard.Keyboard.KeyboardText.text = "Key:";
         }
 
         private async void InitSongList()
@@ -383,35 +386,35 @@ namespace BeatSaverDownloader.UI.ViewControllers
 
         public void SetupSourceOptions()
         {
-            sourceListTableData.data.Clear();
-            sourceListTableData.data.Add(new SourceCellInfo(Filters.FilterMode.BeatSaver, "BeatSaver", null, Sprites.BeatSaverIcon));
-            sourceListTableData.data.Add(new SourceCellInfo(Filters.FilterMode.ScoreSaber, "ScoreSaber", null, Sprites.ScoreSaberIcon));
-            sourceListTableData.tableView.ReloadData();
+            sourceListTableData.Data.Clear();
+            sourceListTableData.Data.Add(new SourceCellInfo(Filters.FilterMode.BeatSaver, "BeatSaver", null, Sprites.BeatSaverIcon));
+            sourceListTableData.Data.Add(new SourceCellInfo(Filters.FilterMode.ScoreSaber, "ScoreSaber", null, Sprites.ScoreSaberIcon));
+            sourceListTableData.TableView.ReloadData();
         }
         public void SetupSortOptions()
         {
-            sortListTableData.data.Clear();
+            sortListTableData.Data.Clear();
             switch (CurrentFilter)
             {
                 case Filters.FilterMode.BeatSaver:
-                    sortListTableData.data.Add(new SortFilterCellInfo(new SortFilter(Filters.FilterMode.BeatSaver, Filters.BeatSaverFilterOptions.Latest), "Latest", "BeatSaver", Sprites.BeatSaverIcon));
-                    sortListTableData.data.Add(new SortFilterCellInfo(new SortFilter(Filters.FilterMode.BeatSaver, Filters.BeatSaverFilterOptions.Rating), "Rating", "BeatSaver", Sprites.BeatSaverIcon));
-                    sortListTableData.data.Add(new SortFilterCellInfo(new SortFilter(Filters.FilterMode.BeatSaver, Filters.BeatSaverFilterOptions.Curated), "Curated", "BeatSaver", Sprites.BeatSaverIcon));
+                    sortListTableData.Data.Add(new SortFilterCellInfo(new SortFilter(Filters.FilterMode.BeatSaver, Filters.BeatSaverFilterOptions.Latest), "Latest", "BeatSaver", Sprites.BeatSaverIcon));
+                    sortListTableData.Data.Add(new SortFilterCellInfo(new SortFilter(Filters.FilterMode.BeatSaver, Filters.BeatSaverFilterOptions.Rating), "Rating", "BeatSaver", Sprites.BeatSaverIcon));
+                    sortListTableData.Data.Add(new SortFilterCellInfo(new SortFilter(Filters.FilterMode.BeatSaver, Filters.BeatSaverFilterOptions.Curated), "Curated", "BeatSaver", Sprites.BeatSaverIcon));
               // Sort By Downloads will return in BeatSaver: Infinity War
               //      sortListTableData.data.Add(new SortFilterCellInfo(new SortFilter(Filters.FilterMode.BeatSaver, Filters.BeatSaverFilterOptions.Downloads), "Downloads", "BeatSaver", Sprites.BeatSaverIcon));
               //      sortListTableData.data.Add(new SortFilterCellInfo(new SortFilter(Filters.FilterMode.BeatSaver, Filters.BeatSaverFilterOptions.Plays), "Plays", "BeatSaver", Sprites.BeatSaverIcon));
                     break;
                 case Filters.FilterMode.ScoreSaber:
-                    sortListTableData.data.Add(new SortFilterCellInfo(new SortFilter(Filters.FilterMode.ScoreSaber, default, Filters.ScoreSaberFilterOptions.Trending), "Trending", "ScoreSaber", Sprites.ScoreSaberIcon));
-                    sortListTableData.data.Add(new SortFilterCellInfo(new SortFilter(Filters.FilterMode.ScoreSaber, default, Filters.ScoreSaberFilterOptions.Ranked), "Ranked", "ScoreSaber", Sprites.ScoreSaberIcon));
-                    sortListTableData.data.Add(new SortFilterCellInfo(new SortFilter(Filters.FilterMode.ScoreSaber, default, Filters.ScoreSaberFilterOptions.Qualified), "Qualified", "ScoreSaber", Sprites.ScoreSaberIcon));
-                    sortListTableData.data.Add(new SortFilterCellInfo(new SortFilter(Filters.FilterMode.ScoreSaber, default, Filters.ScoreSaberFilterOptions.Loved), "Loved", "ScoreSaber", Sprites.ScoreSaberIcon));
-                    sortListTableData.data.Add(new SortFilterCellInfo(new SortFilter(Filters.FilterMode.ScoreSaber, default, Filters.ScoreSaberFilterOptions.Difficulty), "Difficulty", "ScoreSaber", Sprites.ScoreSaberIcon));
-                    sortListTableData.data.Add(new SortFilterCellInfo(new SortFilter(Filters.FilterMode.ScoreSaber, default, Filters.ScoreSaberFilterOptions.Plays), "Plays", "ScoreSaber", Sprites.ScoreSaberIcon));
+                    sortListTableData.Data.Add(new SortFilterCellInfo(new SortFilter(Filters.FilterMode.ScoreSaber, default, Filters.ScoreSaberFilterOptions.Trending), "Trending", "ScoreSaber", Sprites.ScoreSaberIcon));
+                    sortListTableData.Data.Add(new SortFilterCellInfo(new SortFilter(Filters.FilterMode.ScoreSaber, default, Filters.ScoreSaberFilterOptions.Ranked), "Ranked", "ScoreSaber", Sprites.ScoreSaberIcon));
+                    sortListTableData.Data.Add(new SortFilterCellInfo(new SortFilter(Filters.FilterMode.ScoreSaber, default, Filters.ScoreSaberFilterOptions.Qualified), "Qualified", "ScoreSaber", Sprites.ScoreSaberIcon));
+                    sortListTableData.Data.Add(new SortFilterCellInfo(new SortFilter(Filters.FilterMode.ScoreSaber, default, Filters.ScoreSaberFilterOptions.Loved), "Loved", "ScoreSaber", Sprites.ScoreSaberIcon));
+                    sortListTableData.Data.Add(new SortFilterCellInfo(new SortFilter(Filters.FilterMode.ScoreSaber, default, Filters.ScoreSaberFilterOptions.Difficulty), "Difficulty", "ScoreSaber", Sprites.ScoreSaberIcon));
+                    sortListTableData.Data.Add(new SortFilterCellInfo(new SortFilter(Filters.FilterMode.ScoreSaber, default, Filters.ScoreSaberFilterOptions.Plays), "Plays", "ScoreSaber", Sprites.ScoreSaberIcon));
                     break;
 
             }
-            sortListTableData.tableView.ReloadDataKeepingPosition();
+            sortListTableData.TableView.ReloadDataKeepingPosition();
         }
         public void Cleanup()
         {
@@ -570,10 +573,10 @@ namespace BeatSaverDownloader.UI.ViewControllers
             if (keyMap != null && _songs.All(x => x.Value != keyMap))
             {
                 _songs.Add(new StrongBox<Beatmap>(keyMap));
-                customListTableData.data.Add(SongDownloader.IsSongDownloaded(keyMap.LatestVersion.Hash)
+                customListTableData.Data.Add(SongDownloader.IsSongDownloaded(keyMap.LatestVersion.Hash)
                     ? new BeatSaverCustomSongCellInfo(keyMap, CellDidSetImage, $"<#7F7F7F>{keyMap.Name}", keyMap.Uploader.Name)
                     : new BeatSaverCustomSongCellInfo(keyMap, CellDidSetImage, keyMap.Name, keyMap.Uploader.Name));
-                customListTableData.tableView.ReloadDataKeepingPosition();
+                customListTableData.TableView.ReloadDataKeepingPosition();
             }
             _fetchingDetails = "";
         }
@@ -616,22 +619,22 @@ namespace BeatSaverDownloader.UI.ViewControllers
             _songs.AddRange(newMaps.Select(x => new StrongBox<Beatmap>(x)));
             foreach (var song in newMaps)
             {
-                customListTableData.data.Add(SongDownloader.IsSongDownloaded(song.LatestVersion.Hash)
+                customListTableData.Data.Add(SongDownloader.IsSongDownloaded(song.LatestVersion.Hash)
                     ? new BeatSaverCustomSongCellInfo(song, CellDidSetImage, $"<#7F7F7F>{song.Name}", song.Uploader.Name)
                     : new BeatSaverCustomSongCellInfo(song, CellDidSetImage, song.Name, song.Uploader.Name));
-                customListTableData.tableView.ReloadDataKeepingPosition();
+                customListTableData.TableView.ReloadDataKeepingPosition();
             }
         }
 
         private void CellDidSetImage(CustomListTableData.CustomCellInfo cell)
         {
-            var shouldRefresh = customListTableData.tableView.visibleCells
+            var shouldRefresh = customListTableData.TableView.visibleCells
                 .Select(visibleCell => visibleCell as LevelListTableCell)
-                .Any(levelCell => levelCell.GetField<TextMeshProUGUI, LevelListTableCell>("_songNameText")?.text == cell.text);
+                .Any(levelCell => levelCell.GetField<TextMeshProUGUI, LevelListTableCell>("_songNameText")?.text == cell.Text);
 
             if (!shouldRefresh) return;
 
-            customListTableData.tableView.RefreshCellsContent();
+            customListTableData.TableView.RefreshCellsContent();
         }
 
         public void AddBookmarksApi(BookmarksApi bookmarksApi)

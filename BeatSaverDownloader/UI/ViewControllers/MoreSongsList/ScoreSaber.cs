@@ -19,7 +19,7 @@ namespace BeatSaverDownloader.UI.ViewControllers.MoreSongsList
         private async void LoadImage()
         {
             var image = await _song.FetchCoverImage();
-            icon = Misc.Sprites.LoadSpriteRaw(image);
+            Icon = Misc.Sprites.LoadSpriteRaw(image);
 
             _callback(this);
         }

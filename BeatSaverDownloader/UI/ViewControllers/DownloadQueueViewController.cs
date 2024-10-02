@@ -42,9 +42,9 @@ namespace BeatSaverDownloader.UI.ViewControllers
         private void Reload()
         {
             if (_downloadList == null) return;
-            if (_downloadList.tableView == null) return;
+            if (_downloadList.TableView == null) return;
 
-            _downloadList.tableView.ReloadData();
+            _downloadList.TableView.ReloadData();
         }
 
         internal void EnqueueSong(Beatmap song, Sprite cover)

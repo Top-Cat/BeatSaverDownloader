@@ -51,10 +51,5 @@ namespace BeatSaverDownloader.UI
 
         [UIValue("envOptions")]
         public List<object> EnvOptions => OauthConfig.Options;
-
-        public static void SetupSettings()
-        {
-            BSMLSettings.instance.AddSettingsMenu("BeatSaverDL", "BeatSaverDownloader.UI.BSML.settings.bsml", instance);
-        }
     }
 }

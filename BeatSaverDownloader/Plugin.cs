@@ -10,6 +10,7 @@ using BeatSaverSharp.Http;
 using BS_Utils.Utilities;
 using IPA.Loader;
 using IPA.Utilities;
+using BeatSaberMarkupLanguage.Settings;
 
 namespace BeatSaverDownloader
 {
@@ -99,7 +100,10 @@ namespace BeatSaverDownloader
             try
             {
                 PluginUI.SetupLevelDetailClone();
-                Settings.SetupSettings();
+
+                BSMLSettings.Instance.AddSettingsMenu("BeatSaverDL", "BeatSaverDownloader.UI.BSML.settings.bsml", Settings.instance);
+                MenuButtons.Instance.RegisterButton(PluginUI.instance.MoreSongsButton);
+
                 SongCore.Loader.SongsLoadedEvent += Loader_SongsLoadedEvent;
             }
             catch (Exception e)
@@ -113,7 +117,7 @@ namespace BeatSaverDownloader
             if (PluginUI.instance.MoreSongsButton.Interactable) return;
 
             PluginUI.instance.MoreSongsButton.Interactable = true;
-            MenuButtons.instance.InvokeMethod<object, MenuButtons>("Refresh");
+            MenuButtons.Instance.InvokeMethod<object, MenuButtons>("Refresh");
 
             if (PluginConfig.UserTokens?.CouldBeValid == true && PluginConfig.SyncOnLoad)
             {

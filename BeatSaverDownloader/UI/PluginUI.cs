@@ -128,7 +128,7 @@ namespace BeatSaverDownloader.UI
 
             if (bookmarkButton.gameObject.activeSelf)
             {
-                _selectedHash = SongCore.Utilities.Hashing.GetCustomLevelHash(level);
+                _selectedHash = SongCore.Utilities.Hashing.ComputeCustomLevelHash(level);
             }
 
             bookmarkButton.SetIsOnWithoutNotify(_bookmarksApi.IsBookmarked(level));

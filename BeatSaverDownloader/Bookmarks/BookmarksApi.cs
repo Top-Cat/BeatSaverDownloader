@@ -93,7 +93,7 @@ namespace BeatSaverDownloader.Bookmarks
         {
             if (!customLevel.levelID.StartsWith("custom_level_")) return false;
 
-            var hash = SongCore.Utilities.Hashing.GetCustomLevelHash(customLevel);
+            var hash = SongCore.Utilities.Hashing.ComputeCustomLevelHash(customLevel);
             return IsBookmarked(hash);
         }
 
